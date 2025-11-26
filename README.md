@@ -55,25 +55,31 @@ If you want to learn more about building native executables, please consult <htt
 
 ## Related Guides
 
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- Liquibase ([guide](https://quarkus.io/guides/liquibase)): Handle your database schema migrations with Liquibase
+- REST resources for Hibernate ORM with Panache ([guide](https://quarkus.io/guides/rest-data-panache)): Generate Jakarta REST resources for your Hibernate Panache entities and repositories
+- Messaging - RabbitMQ Connector ([guide](https://quarkus.io/guides/rabbitmq)): Connect to RabbitMQ with Reactive Messaging
+- REST Client ([guide](https://quarkus.io/guides/rest-client)): Call REST services
+- Messaging - Kafka Connector ([guide](https://quarkus.io/guides/kafka-getting-started)): Connect to Kafka with Reactive Messaging
+- OpenID Connect ([guide](https://quarkus.io/guides/security-openid-connect)): Verify Bearer access tokens and authenticate users with Authorization Code Flow
 - JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
 
 ## Provided Code
 
-### Hibernate ORM
+### REST Data with Panache
 
-Create your first JPA entity
+Generating Jakarta REST resources with Panache
 
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
+[Related guide section...](https://quarkus.io/guides/rest-data-panache)
 
 
-### REST
+### Messaging codestart
 
-Easily start your REST Web Services
+Use Quarkus Messaging
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+[Related Apache Kafka guide section...](https://quarkus.io/guides/kafka-reactive-getting-started)
+
+
+### REST Client
+
+Invoke different services through REST with JSON
+
+[Related guide section...](https://quarkus.io/guides/rest-client)
