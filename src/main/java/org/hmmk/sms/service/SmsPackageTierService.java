@@ -16,7 +16,6 @@ public class SmsPackageTierService {
         if (tier == null) {
             throw new IllegalArgumentException("No pricing tier available for this SMS count");
         }
-
         return BigDecimal.valueOf(requestedSmsCount).multiply(tier.pricePerSms);
     }
 

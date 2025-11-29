@@ -35,7 +35,4 @@ public class SmsPackageTier extends PanacheEntityBase {
 
     @Column(name = "is_active", nullable = false)
     public boolean isActive;
-
-    @OneToMany(mappedBy = "smsPackage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    public List<PaymentTransaction> paymentTransactions;
 }

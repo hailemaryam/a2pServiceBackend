@@ -5,25 +5,27 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "sender")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Sender extends PanacheEntityBase {
+@Table(
+        name = "sender",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"tenantId", "short_code"})
+        }
+)
+public class Sender extends TenantScopedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public String id;
 
-    @Column(nullable = false)
-    public String tenantId;
-
     public String name;
 
-    @Column(name = "short_code", nullable = false, unique = true, length = 200)
-    public String shortCode;;
+    @Column(name = "short_code", nullable = false,  length = 200)
+    public String shortCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

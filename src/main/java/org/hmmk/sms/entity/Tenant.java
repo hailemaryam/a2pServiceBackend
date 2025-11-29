@@ -31,7 +31,7 @@ public class Tenant extends PanacheEntityBase {
     public TenantStatus status;
 
     @Column(name = "sms_credit", nullable = false)
-    public int smsCredit; // total SMS available
+    public long smsCredit;// total SMS available
 
     @Column(name = "config_json", columnDefinition = "TEXT")
     public String configJson;

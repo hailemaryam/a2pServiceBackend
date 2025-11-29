@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hmmk.sms.entity.TenantScopedEntity;
 
 import java.time.Instant;
 
@@ -15,23 +16,14 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ContactGroup extends PanacheEntityBase {
+public class ContactGroup extends TenantScopedEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public String id;
-
     @Column(nullable = false)
     public String tenantId;
-
     @Column(nullable = false)
     public String name;
-
     public String description;
-
-    @CreationTimestamp
-    private Instant createdAt;
-
-    @UpdateTimestamp
-    private Instant updatedAt;
 
 }

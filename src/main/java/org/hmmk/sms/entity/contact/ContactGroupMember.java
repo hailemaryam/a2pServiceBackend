@@ -1,8 +1,10 @@
 package org.hmmk.sms.entity.contact;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hmmk.sms.entity.TenantScopedEntity;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,15 +13,12 @@ import java.util.UUID;
 @Table(name = "contact_group_members")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class ContactGroupMember {
+public class ContactGroupMember  extends TenantScopedEntity {
 
     @Id
     @GeneratedValue
     @Column(columnDefinition = "uuid")
     private UUID id;
-
-    @Column(name = "tenant_id", nullable = false)
-    private String tenantId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "contact_id")
@@ -28,7 +27,4 @@ public class ContactGroupMember {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "group_id")
     private ContactGroup group;
-
-    @CreationTimestamp
-    private Instant addedAt;
 }
