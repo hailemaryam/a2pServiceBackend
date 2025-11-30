@@ -10,7 +10,7 @@ import org.hmmk.sms.entity.TenantScopedEntity;
 import java.time.Instant;
 
 @Entity
-@Table(name = "group")
+@Table(name = "contact_groups")
 @Getter
 @Setter
 @NoArgsConstructor

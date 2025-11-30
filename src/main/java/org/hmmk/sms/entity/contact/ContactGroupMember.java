@@ -16,9 +16,8 @@ import java.util.UUID;
 public class ContactGroupMember  extends TenantScopedEntity {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    public String id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "contact_id")

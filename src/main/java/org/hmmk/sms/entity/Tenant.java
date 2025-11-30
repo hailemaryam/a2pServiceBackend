@@ -17,7 +17,6 @@ public class Tenant extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false)
     public String id;
 
     @Column(nullable = false, unique = true, length = 150)

@@ -18,7 +18,6 @@ public class SmsPackageTier extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
     public String id;
 
     @Column(name = "min_sms_count", nullable = false)
