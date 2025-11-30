@@ -1,0 +1,55 @@
+{
+  "realm": "a2p-realm",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+
+  "clients": [
+    {
+      "clientId": "a2p-ui-client",
+      "name": "A2P Frontend Client",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    },
+
+    {
+      "clientId": "a2p-backend-client",
+      "name": "A2P Backend Client",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "l7xvVHTiXv03eAB3ttmgQJHWArVLqMZ6",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [],
+      "webOrigins": []
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      { "name": "tenant_admin" },
+      { "name": "tenant_user" },
+      { "name": "sys_admin" }
+    ]
+  },
+
+  "groups": [],
+  "users": []
+}
