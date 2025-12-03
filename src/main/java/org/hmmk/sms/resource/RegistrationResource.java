@@ -4,12 +4,13 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.hmmk.sms.dto.RegistrationRequest;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.service.KeycloakUserService;
@@ -18,6 +19,7 @@ import org.keycloak.admin.client.Keycloak;
 import java.util.Map;
 
 @Path("/api/register")
+@SecurityRequirement(name = "keycloak")
 public class RegistrationResource {
 
     @Inject
@@ -25,6 +27,17 @@ public class RegistrationResource {
 
     @Inject
     Keycloak keycloak;
+
+    @Inject
+    JsonWebToken jwt;
+
+    @GET
+    @Path("/me")
+    public String getTenantId() {
+        String tenantId = jwt.getClaim("tenantId");
+        String preferredUsername = jwt.getClaim("preferred_username");
+        return tenantId != null ? tenantId : "No tenantId found in token" + " (user: " + preferredUsername + ")";
+    }
 
     @POST
     @PermitAll
@@ -41,10 +54,12 @@ public class RegistrationResource {
 
         // 2. Create Keycloak User
         keycloakAdminClient.createTenantAdminUser(
-                request.getAdminUsername(),
-                request.getAdminEmail(),
-                request.getAdminPassword(),
-                tenant.id
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                tenant.id,
+                request.getFirstName(),
+                request.getLastName()
         );
 
         return Response.status(Response.Status.CREATED)

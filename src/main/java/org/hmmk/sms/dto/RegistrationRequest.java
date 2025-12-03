@@ -6,7 +6,9 @@ import lombok.Data;
 public class RegistrationRequest {
     private String tenantName;
     private String domain;
-    private String adminUsername;
-    private String adminEmail;
-    private String adminPassword;
+    private String username;
+    private String email;
+    private String password;
+    private String firstName;
+    private String lastName;
 }
