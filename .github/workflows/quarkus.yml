@@ -1,0 +1,44 @@
+name: Deploy Quarkus API
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "src/**"
+      - "pom.xml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Build Quarkus JAR
+        run: |
+          ./mvnw package -DskipTests
+
+      - name: Upload JAR to VPS
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/quarkus-app/quarkus-run.jar"
+          target: "/var/www/my-quarkus-app/app.jar"
+
+      - name: Restart Quarkus service
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo systemctl restart quarkus
