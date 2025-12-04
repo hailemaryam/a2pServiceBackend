@@ -32,8 +32,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "target/quarkus-app/quarkus-run.jar"
-          target: "/var/www/my-quarkus-app/app.jar"
+          source: "target/*"
+          target: "/var/www/my-quarkus-app/target/"
 
       - name: Restart Quarkus service
         uses: appleboy/ssh-action@v0.1.4
