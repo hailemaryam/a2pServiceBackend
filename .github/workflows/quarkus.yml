@@ -23,6 +23,7 @@ jobs:
 
       - name: Build Quarkus JAR
         run: |
+          chmod +x ./mvnw
           ./mvnw package -DskipTests
 
       - name: Upload JAR to VPS
