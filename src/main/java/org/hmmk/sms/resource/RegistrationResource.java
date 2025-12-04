@@ -30,7 +30,7 @@ public class RegistrationResource {
 
     @Inject
     JsonWebToken jwt;
-
+    // test commit for pipeline
     @GET
     @Path("/me")
     public String getTenantId() {
