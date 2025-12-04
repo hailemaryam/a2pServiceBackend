@@ -31,6 +31,7 @@ public class RegistrationResource {
     @Inject
     JsonWebToken jwt;
 
+    // test commit for pip line
     @GET
     @Path("/me")
     public String getTenantId() {
