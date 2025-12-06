@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "target/*"
-          target: "/var/www/my-quarkus-app/target/"
+          target: "/var/www/my-quarkus-app"
 
       - name: Restart Quarkus service
         uses: appleboy/ssh-action@v0.1.4
