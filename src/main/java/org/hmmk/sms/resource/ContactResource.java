@@ -89,9 +89,9 @@ public class ContactResource {
 
     @GET
     @Path("/search/by-phone")
-    @PermitAll
-    public Contact findByPhone(@QueryParam("phone") String phone, @QueryParam("tenantId") String tenantId) {
-        if (tenantId == null) tenantId = tenantIdFromJwt();
+    @RolesAllowed("tenant_admin")
+    public Contact findByPhone(@QueryParam("phone") String phone) {
+        String tenantId = tenantIdFromJwt();
         if (tenantId == null) return Contact.find("phone", phone).firstResult();
         return Contact.find("tenantId = ?1 and phone = ?2", tenantId, phone).firstResult();
     }
