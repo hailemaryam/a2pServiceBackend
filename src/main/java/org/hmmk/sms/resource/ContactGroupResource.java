@@ -32,8 +32,7 @@ public class ContactGroupResource {
     @RolesAllowed("tenant_admin")
     @Transactional
     public ContactGroup create(@Valid ContactGroup group) {
-        String tenantId = tenantIdFromJwt();
-        group.tenantId = tenantId;
+        group.tenantId = tenantIdFromJwt();
         group.persist();
         return group;
     }

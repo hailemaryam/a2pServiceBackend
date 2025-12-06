@@ -59,7 +59,8 @@ public class SmsPackageTierResource {
     @GET
     @PermitAll
     public List<SmsPackageTier> listAll() {
-        return SmsPackageTier.listAll();
+        String query = "isActive = true ORDER BY minSmsCount ASC";
+        return SmsPackageTier.list(query);
     }
 
     @GET

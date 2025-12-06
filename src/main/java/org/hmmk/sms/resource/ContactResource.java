@@ -71,10 +71,9 @@ public class ContactResource {
     }
 
     @GET
-    @PermitAll
-    public List<Contact> list(@QueryParam("tenantId") String tenantId) {
-        if (tenantId == null) tenantId = tenantIdFromJwt();
-        if (tenantId == null) return Contact.listAll();
+    @RolesAllowed({"tenant_admin"})
+    public List<Contact> list() {
+        String tenantId = tenantIdFromJwt();
         return Contact.list("tenantId", tenantId);
     }
 
