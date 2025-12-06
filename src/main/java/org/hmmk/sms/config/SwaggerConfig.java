@@ -7,7 +7,7 @@ import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 @SecurityScheme(
         securitySchemeName = "keycloak",
         type = SecuritySchemeType.OPENIDCONNECT,
-        openIdConnectUrl = "http://localhost:63735/realms/a2p-realm/.well-known/openid-configuration"
+        openIdConnectUrl = "https://keycloak.fastsms.dev/realms/a2p-realm/.well-known/openid-configuration"
 )
 public class SwaggerConfig extends Application {
 

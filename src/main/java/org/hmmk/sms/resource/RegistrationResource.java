@@ -11,6 +11,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.RegistrationRequest;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.service.KeycloakUserService;
@@ -19,7 +20,9 @@ import org.keycloak.admin.client.Keycloak;
 import java.util.Map;
 
 @Path("/api/register")
-@SecurityRequirement(name = "keycloak")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@Tag(name = "Tenant Registration")
 public class RegistrationResource {
 
     @Inject
@@ -28,23 +31,9 @@ public class RegistrationResource {
     @Inject
     Keycloak keycloak;
 
-    @Inject
-    JsonWebToken jwt;
-
-    // test commit for pip line
-    @GET
-    @Path("/me")
-    public String getTenantId() {
-        String tenantId = jwt.getClaim("tenantId");
-        String preferredUsername = jwt.getClaim("preferred_username");
-        return tenantId != null ? tenantId : "No tenantId found in token" + " (user: " + preferredUsername + ")";
-    }
-
     @POST
     @PermitAll
     @Transactional
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response registerTenantAndAdmin(@Valid RegistrationRequest request) {
         // 1. Create Tenant
         Tenant tenant = new Tenant();
