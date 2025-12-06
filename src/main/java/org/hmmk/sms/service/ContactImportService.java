@@ -3,7 +3,6 @@ package org.hmmk.sms.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
 import org.hmmk.sms.entity.contact.Contact;
 import org.hmmk.sms.entity.contact.ContactGroup;
 import org.hmmk.sms.entity.contact.ContactGroupMember;
@@ -28,13 +27,13 @@ public class ContactImportService {
 
         ContactGroup group = null;
         if (groupId != null && !groupId.isBlank()) {
-            group = ContactGroup.findById(groupId);
-            if (group == null) {
-                throw new NotFoundException("ContactGroup not found: " + groupId);
-            }
-            // ensure group belongs to tenant
-            if (group.tenantId == null || !group.tenantId.equals(tenantId)) {
-                throw new NotFoundException("ContactGroup not found for tenant: " + groupId);
+            // Try to resolve the group; if not found or not owned by tenant, ignore group association
+            ContactGroup resolved = ContactGroup.findById(groupId);
+            if (resolved != null && resolved.tenantId != null && resolved.tenantId.equals(tenantId)) {
+                group = resolved;
+            } else {
+                // group not found or not owned by tenant — do not throw, import contacts only
+                group = null;
             }
         }
 
@@ -63,7 +62,7 @@ public class ContactImportService {
                     c.persist();
                 }
 
-                // if a group was provided, create a ContactGroupMember linking them (avoid duplicates)
+                // if a valid group was resolved, create a ContactGroupMember linking them (avoid duplicates)
                 if (group != null) {
                     ContactGroupMember existing = ContactGroupMember.find("group = ?1 and contact = ?2", group, c).firstResult();
                     if (existing == null) {
