@@ -9,9 +9,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.hmmk.sms.dto.PaginatedResponse;
 import org.hmmk.sms.entity.contact.ContactGroup;
 
 import java.util.List;
+import io.quarkus.panache.common.Page;
 
 @Path("/api/contact-groups")
 @Produces(MediaType.APPLICATION_JSON)
@@ -56,9 +58,13 @@ public class ContactGroupResource {
 
     @GET
     @RolesAllowed("tenant_admin")
-    public List<ContactGroup> list() {
+    public PaginatedResponse<ContactGroup> list(@QueryParam("page") @DefaultValue("0") int page, @QueryParam("size") @DefaultValue("20") int size) {
         String tenantId = tenantIdFromJwt();
-        return ContactGroup.list("tenantId", tenantId);
+        Page p = Page.of(page, size);
+        var query = ContactGroup.find("tenantId", tenantId).page(p);
+        List<ContactGroup> items = query.list();
+        long total = ContactGroup.count("tenantId", tenantId);
+        return new PaginatedResponse<>(items, total, page, size);
     }
 
     @GET

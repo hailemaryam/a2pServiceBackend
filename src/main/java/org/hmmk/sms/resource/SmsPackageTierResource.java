@@ -10,11 +10,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.SmsPackageTierDto;
+import org.hmmk.sms.dto.PaginatedResponse;
 import org.hmmk.sms.entity.payment.SmsPackageTier;
 
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
+import io.quarkus.panache.common.Page;
 
 @Path("/api/admin/sms-packages")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,9 +60,12 @@ public class SmsPackageTierResource {
 
     @GET
     @PermitAll
-    public List<SmsPackageTier> listAll() {
-        String query = "isActive = true ORDER BY minSmsCount ASC";
-        return SmsPackageTier.list(query);
+    public PaginatedResponse<SmsPackageTier> listAll(@QueryParam("page") @DefaultValue("0") int page, @QueryParam("size") @DefaultValue("20") int size) {
+        Page p = Page.of(page, size);
+        var query = SmsPackageTier.find("isActive = true").page(p);
+        List<SmsPackageTier> items = query.list();
+        long total = SmsPackageTier.count("isActive = true");
+        return new PaginatedResponse<>(items, total, page, size);
     }
 
     @GET
