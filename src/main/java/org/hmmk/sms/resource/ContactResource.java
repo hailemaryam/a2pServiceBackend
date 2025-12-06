@@ -7,13 +7,21 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.BadRequestException;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.dto.ContactDto;
 import org.hmmk.sms.entity.contact.Contact;
 import org.hmmk.sms.service.ContactImportService;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
+import org.jboss.resteasy.reactive.RestForm;
 
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.List;
 
 @Path("/api/contacts")
@@ -89,9 +97,24 @@ public class ContactResource {
     }
 
     @POST
-    @Path("/upload")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/upload-file")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @RolesAllowed("tenant_admin")
+    public List<Contact> uploadFile(@RestForm("file") FileUpload file, @QueryParam("groupId") String groupId) throws Exception {
+        if (file == null) throw new BadRequestException("file missing");
+        java.nio.file.Path uploaded = file.uploadedFile();
+        if (uploaded == null) throw new BadRequestException("file missing");
+        try (InputStream in = Files.newInputStream(uploaded)) {
+            String tenantId = tenantIdFromJwt();
+            return importService.importFromCsv(in, tenantId, groupId);
+        }
+    }
+
+    @POST
+    @Path("/upload")
+    @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
+    @RolesAllowed("tenant_admin")
+    @RequestBody(description = "Upload CSV or Excel file as binary", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = @Schema(type = SchemaType.STRING, format = "binary")))
     public List<Contact> uploadCsv(InputStream body, @QueryParam("groupId") String groupId) throws Exception {
         String tenantId = tenantIdFromJwt();
         return importService.importFromCsv(body, tenantId, groupId);
