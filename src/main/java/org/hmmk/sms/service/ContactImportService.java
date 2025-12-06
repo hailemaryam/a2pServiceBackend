@@ -31,9 +31,6 @@ public class ContactImportService {
             ContactGroup resolved = ContactGroup.findById(groupId);
             if (resolved != null && resolved.tenantId != null && resolved.tenantId.equals(tenantId)) {
                 group = resolved;
-            } else {
-                // group not found or not owned by tenant — do not throw, import contacts only
-                group = null;
             }
         }
 
