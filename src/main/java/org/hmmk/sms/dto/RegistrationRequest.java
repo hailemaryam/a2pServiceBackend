@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class RegistrationRequest {
     private String tenantName;
-    private String domain;
+    private String phone;
     private String username;
     private String email;
     private String password;

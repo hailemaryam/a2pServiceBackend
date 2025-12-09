@@ -22,8 +22,11 @@ public class Tenant extends PanacheEntityBase {
     @Column(nullable = false, unique = true, length = 150)
     public String name;
 
-    @Column(unique = true, length = 200)
-    public String domain;
+    @Column(length = 255)
+    public String email;
+
+    @Column(length = 20)
+    public String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

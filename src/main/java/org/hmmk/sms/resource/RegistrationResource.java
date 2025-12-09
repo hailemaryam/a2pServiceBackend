@@ -7,10 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.RegistrationRequest;
 import org.hmmk.sms.entity.Tenant;
@@ -38,7 +34,8 @@ public class RegistrationResource {
         // 1. Create Tenant
         Tenant tenant = new Tenant();
         tenant.name = request.getTenantName();
-        tenant.domain = request.getDomain();
+        tenant.email = request.getEmail();
+        tenant.phone = request.getPhone();
         tenant.status = Tenant.TenantStatus.ACTIVE;
         tenant.persist();
 
@@ -49,8 +46,7 @@ public class RegistrationResource {
                 request.getPassword(),
                 tenant.id,
                 request.getFirstName(),
-                request.getLastName()
-        );
+                request.getLastName());
 
         return Response.status(Response.Status.CREATED)
                 .entity(Map.of("tenantId", tenant.id))
