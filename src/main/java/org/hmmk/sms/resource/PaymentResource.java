@@ -47,4 +47,17 @@ public class PaymentResource {
 
         return Response.ok(response).build();
     }
+
+    /**
+     * Callback endpoint for Chapa payment webhook.
+     * This endpoint is called by Chapa after payment completion.
+     */
+    @POST
+    @Path("/callback")
+    @jakarta.annotation.security.PermitAll
+    @Transactional
+    public Response handleCallback(org.hmmk.sms.dto.ChapaCallbackRequest callback) {
+        paymentService.processCallback(callback.getTrxRef(), callback.getStatus());
+        return Response.ok().build();
+    }
 }

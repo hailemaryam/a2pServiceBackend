@@ -109,4 +109,53 @@ public class PaymentService {
      */
     private record TierSelectionResult(SmsPackageTier tier, int smsCredits) {
     }
+
+    /**
+     * Process payment callback from Chapa.
+     * Verifies the payment and updates transaction status and tenant SMS credits.
+     * 
+     * @param trxRef The transaction reference (our PaymentTransaction ID)
+     * @param status The callback status from Chapa
+     */
+    public void processCallback(String trxRef, String status) {
+        // 1. Find the payment transaction
+        PaymentTransaction transaction = PaymentTransaction.findById(trxRef);
+        if (transaction == null) {
+            throw new BadRequestException("Transaction not found: " + trxRef);
+        }
+
+        // Skip if already processed
+        if (transaction.paymentStatus != PaymentTransaction.PaymentStatus.IN_PROGRESS) {
+            return;
+        }
+
+        // 2. Verify payment with Chapa
+        org.hmmk.sms.dto.ChapaVerifyResponse verifyResponse = chapaPaymentService.verifyPayment(trxRef);
+
+        // 3. Update transaction status based on verification result
+        if ("success".equalsIgnoreCase(verifyResponse.getStatus())
+                && verifyResponse.getData() != null
+                && "success".equalsIgnoreCase(verifyResponse.getData().getStatus())) {
+
+            // Payment successful - update transaction and credit SMS
+            transaction.paymentStatus = PaymentTransaction.PaymentStatus.SUCCESSFUL;
+            transaction.persist();
+
+            // Credit SMS to tenant
+            creditSmsToTenant(transaction.tenantId, transaction.smsCredited);
+
+        } else {
+            // Payment failed
+            transaction.paymentStatus = PaymentTransaction.PaymentStatus.FAILED;
+            transaction.persist();
+        }
+    }
+
+    private void creditSmsToTenant(String tenantId, int smsCredits) {
+        Tenant tenant = Tenant.findById(tenantId);
+        if (tenant != null) {
+            tenant.smsCredit += smsCredits;
+            tenant.persist();
+        }
+    }
 }

@@ -78,4 +78,35 @@ public class ChapaPaymentService {
                     Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Verify a payment transaction with Chapa.
+     * 
+     * @param txRef The transaction reference (our PaymentTransaction ID)
+     * @return ChapaVerifyResponse with payment details
+     */
+    public org.hmmk.sms.dto.ChapaVerifyResponse verifyPayment(String txRef) {
+        try {
+            String verifyUrl = "https://api.chapa.co/v1/transaction/verify/" + txRef;
+
+            HttpRequest httpRequest = HttpRequest.newBuilder()
+                    .uri(URI.create(verifyUrl))
+                    .header("Authorization", "Bearer " + chapaApiKey)
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            org.hmmk.sms.dto.ChapaVerifyResponse verifyResponse = objectMapper.readValue(
+                    response.body(),
+                    org.hmmk.sms.dto.ChapaVerifyResponse.class);
+
+            return verifyResponse;
+
+        } catch (Exception e) {
+            throw new WebApplicationException(
+                    "Failed to verify payment: " + e.getMessage(),
+                    Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
