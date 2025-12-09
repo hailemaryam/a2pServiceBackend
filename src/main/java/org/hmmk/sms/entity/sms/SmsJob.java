@@ -9,8 +9,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "sms_jobs")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SmsJob extends TenantScopedEntity {
 
     @Id
@@ -44,15 +47,33 @@ public class SmsJob extends TenantScopedEntity {
     @Column(nullable = false)
     public ApprovalStatus approvalStatus;
 
-    public enum ApprovalStatus { PENDING, APPROVED, REJECTED }
-    public enum JobType { SINGLE, GROUP, BULK }
-    public enum SourceType { API ,MANUAL, CSV_UPLOAD }
-    public enum JobStatus { PENDING_APPROVAL, SCHEDULED, SENDING, COMPLETED, FAILED }
-    public enum MessageType {English, UNICODE}  // can be detected automatically based on content
+    @Column(name = "group_id")
+    public String groupId; // ContactGroup ID for JobType.GROUP
+
+    public enum ApprovalStatus {
+        PENDING, APPROVED, REJECTED
+    }
+
+    public enum JobType {
+        SINGLE, GROUP, BULK
+    }
+
+    public enum SourceType {
+        API, MANUAL, CSV_UPLOAD
+    }
+
+    public enum JobStatus {
+        PENDING_APPROVAL, SCHEDULED, SENDING, COMPLETED, FAILED
+    }
+
+    public enum MessageType {
+        English, UNICODE
+    } // can be detected automatically based on content
 
     @PrePersist
     public void prePersist() {
-        if (status == null) status = JobStatus.PENDING_APPROVAL;
+        if (status == null)
+            status = JobStatus.PENDING_APPROVAL;
     }
 
 }
