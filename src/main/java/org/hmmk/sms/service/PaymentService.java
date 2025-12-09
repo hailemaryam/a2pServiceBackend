@@ -158,4 +158,38 @@ public class PaymentService {
             tenant.persist();
         }
     }
+
+    /**
+     * List payment transactions for a tenant with pagination and optional status
+     * filter.
+     * 
+     * @param tenantId The tenant ID
+     * @param page     Page number (0-indexed)
+     * @param size     Page size
+     * @param status   Optional status filter
+     * @return Paginated list of transactions
+     */
+    public org.hmmk.sms.dto.PaginatedResponse<PaymentTransaction> listTransactions(
+            String tenantId, int page, int size, PaymentTransaction.PaymentStatus status) {
+
+        io.quarkus.panache.common.Page p = io.quarkus.panache.common.Page.of(page, size);
+
+        String query;
+        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        params.put("tenantId", tenantId);
+
+        if (status != null) {
+            query = "tenantId = :tenantId AND paymentStatus = :status ORDER BY createdAt DESC";
+            params.put("status", status);
+        } else {
+            query = "tenantId = :tenantId ORDER BY createdAt DESC";
+        }
+
+        List<PaymentTransaction> items = PaymentTransaction.find(query, params).page(p).list();
+        long total = PaymentTransaction.count(
+                status != null ? "tenantId = :tenantId AND paymentStatus = :status" : "tenantId = :tenantId",
+                params);
+
+        return new org.hmmk.sms.dto.PaginatedResponse<>(items, total, page, size);
+    }
 }

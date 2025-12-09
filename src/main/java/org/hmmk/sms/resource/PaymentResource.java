@@ -60,4 +60,24 @@ public class PaymentResource {
         paymentService.processCallback(callback.getTrxRef(), callback.getStatus());
         return Response.ok().build();
     }
+
+    /**
+     * List payment transactions for the current tenant.
+     * Supports pagination and optional status filter.
+     */
+    @GET
+    @Path("/transactions")
+    @RolesAllowed({ "tenant_admin", "tenant_user" })
+    public org.hmmk.sms.dto.PaginatedResponse<org.hmmk.sms.entity.payment.PaymentTransaction> listTransactions(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size,
+            @QueryParam("status") org.hmmk.sms.entity.payment.PaymentTransaction.PaymentStatus status) {
+
+        String tenantId = jwt.getClaim("tenantId");
+        if (tenantId == null) {
+            throw new ForbiddenException("No tenant associated with this user");
+        }
+
+        return paymentService.listTransactions(tenantId, page, size, status);
+    }
 }
