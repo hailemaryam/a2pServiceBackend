@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -277,5 +278,71 @@ public class SmsJobService {
             throw new NotFoundException("Tenant not found");
         }
         return tenant;
+    }
+
+    /**
+     * Approves an SMS job that is pending approval.
+     * Changes the job status to SCHEDULED and records the approver.
+     */
+    @Transactional
+    public SmsJob approveJob(UUID jobId, String adminUserId) {
+        SmsJob job = SmsJob.findById(jobId);
+        if (job == null) {
+            throw new NotFoundException("SMS job not found");
+        }
+
+        if (job.approvalStatus != SmsJob.ApprovalStatus.PENDING) {
+            throw new BadRequestException("Job is not pending approval");
+        }
+
+        job.approvalStatus = SmsJob.ApprovalStatus.APPROVED;
+        job.status = SmsJob.JobStatus.SCHEDULED;
+        job.approvedBy = adminUserId;
+        job.approvedAt = Instant.now();
+        job.persist();
+
+        return job;
+    }
+
+    /**
+     * Rejects an SMS job that is pending approval.
+     * Changes the approval status to REJECTED and records the rejector.
+     */
+    @Transactional
+    public SmsJob rejectJob(UUID jobId, String adminUserId, String reason) {
+        SmsJob job = SmsJob.findById(jobId);
+        if (job == null) {
+            throw new NotFoundException("SMS job not found");
+        }
+
+        if (job.approvalStatus != SmsJob.ApprovalStatus.PENDING) {
+            throw new BadRequestException("Job is not pending approval");
+        }
+
+        job.approvalStatus = SmsJob.ApprovalStatus.REJECTED;
+        job.status = SmsJob.JobStatus.FAILED;
+        job.approvedBy = adminUserId; // Records who rejected it
+        job.approvedAt = Instant.now();
+        job.persist();
+
+        return job;
+    }
+
+    /**
+     * Lists all SMS jobs pending approval.
+     */
+    public List<SmsJob> listPendingApprovalJobs() {
+        return SmsJob.list("approvalStatus", SmsJob.ApprovalStatus.PENDING);
+    }
+
+    /**
+     * Gets an SMS job by ID.
+     */
+    public SmsJob getJobById(UUID jobId) {
+        SmsJob job = SmsJob.findById(jobId);
+        if (job == null) {
+            throw new NotFoundException("SMS job not found");
+        }
+        return job;
     }
 }
