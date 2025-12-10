@@ -35,6 +35,10 @@ public class Tenant extends PanacheEntityBase {
     @Column(name = "sms_credit", nullable = false)
     public long smsCredit;// total SMS available
 
+    @Builder.Default
+    @Column(name = "sms_approval_threshold", nullable = false)
+    public int smsApprovalThreshold = 100; // Number of recipients above which an SMS job requires admin approval
+
     @Column(name = "config_json", columnDefinition = "TEXT")
     public String configJson;
 
