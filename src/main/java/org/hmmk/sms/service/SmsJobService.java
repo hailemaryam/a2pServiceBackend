@@ -42,9 +42,13 @@ public class SmsJobService {
     @Transactional
     public SmsJob sendSingle(String tenantId, String userId, SingleSmsRequest req) {
         validateSender(tenantId, req.getSenderId());
+        Tenant tenant = getTenant(tenantId);
 
         SmsJob.MessageType messageType = detectMessageType(req.getMessage());
         int smsCount = calculateSmsCount(req.getMessage(), messageType);
+
+        // Validate sufficient credits (single SMS is always auto-approved)
+        validateSufficientCredits(tenant, smsCount);
 
         SmsJob job = SmsJob.builder()
                 .senderId(req.getSenderId())
@@ -62,6 +66,9 @@ public class SmsJobService {
         job.tenantId = tenantId;
 
         job.persist();
+
+        // Deduct credits immediately for auto-approved job
+        deductCredits(tenant, smsCount);
 
         // Create recipient
         createRecipient(job, req.getPhoneNumber(), req.getMessage(), messageType, tenantId);
@@ -97,6 +104,9 @@ public class SmsJobService {
         // Check if approval is required
         boolean requiresApproval = totalRecipients > tenant.smsApprovalThreshold;
 
+        // Validate sufficient credits
+        validateSufficientCredits(tenant, totalSmsCount);
+
         SmsJob job = SmsJob.builder()
                 .senderId(req.getSenderId())
                 .jobType(SmsJob.JobType.GROUP)
@@ -114,6 +124,11 @@ public class SmsJobService {
         job.tenantId = tenantId;
 
         job.persist();
+
+        // Deduct credits immediately if auto-approved
+        if (!requiresApproval) {
+            deductCredits(tenant, totalSmsCount);
+        }
 
         // Create recipients for each group member
         for (ContactGroupMember member : members) {
@@ -146,6 +161,9 @@ public class SmsJobService {
         // Check if approval is required
         boolean requiresApproval = totalRecipients > tenant.smsApprovalThreshold;
 
+        // Validate sufficient credits
+        validateSufficientCredits(tenant, totalSmsCount);
+
         SmsJob job = SmsJob.builder()
                 .senderId(req.getSenderId())
                 .jobType(SmsJob.JobType.BULK)
@@ -162,6 +180,11 @@ public class SmsJobService {
         job.tenantId = tenantId;
 
         job.persist();
+
+        // Deduct credits immediately if auto-approved
+        if (!requiresApproval) {
+            deductCredits(tenant, totalSmsCount);
+        }
 
         // Create recipients for each phone number
         for (String phoneNumber : phoneNumbers) {
@@ -281,6 +304,25 @@ public class SmsJobService {
     }
 
     /**
+     * Validates that the tenant has sufficient SMS credits.
+     */
+    private void validateSufficientCredits(Tenant tenant, long requiredCredits) {
+        if (tenant.smsCredit < requiredCredits) {
+            throw new BadRequestException(
+                    String.format("Insufficient SMS credits. Required: %d, Available: %d",
+                            requiredCredits, tenant.smsCredit));
+        }
+    }
+
+    /**
+     * Deducts SMS credits from the tenant's balance.
+     */
+    private void deductCredits(Tenant tenant, long credits) {
+        tenant.smsCredit -= credits;
+        tenant.persist();
+    }
+
+    /**
      * Approves an SMS job that is pending approval.
      * Changes the job status to SCHEDULED and records the approver.
      */
@@ -294,6 +336,11 @@ public class SmsJobService {
         if (job.approvalStatus != SmsJob.ApprovalStatus.PENDING) {
             throw new BadRequestException("Job is not pending approval");
         }
+
+        // Get tenant and validate/deduct credits
+        Tenant tenant = getTenant(job.tenantId);
+        validateSufficientCredits(tenant, job.totalSmsCount);
+        deductCredits(tenant, job.totalSmsCount);
 
         job.approvalStatus = SmsJob.ApprovalStatus.APPROVED;
         job.status = SmsJob.JobStatus.SCHEDULED;
