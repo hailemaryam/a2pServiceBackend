@@ -329,10 +329,20 @@ public class SmsJobService {
     }
 
     /**
-     * Lists all SMS jobs pending approval.
+     * Lists SMS jobs pending approval with pagination.
      */
-    public List<SmsJob> listPendingApprovalJobs() {
-        return SmsJob.list("approvalStatus", SmsJob.ApprovalStatus.PENDING);
+    public PaginatedResult<SmsJob> listPendingApprovalJobs(int page, int size) {
+        var query = SmsJob.find("approvalStatus", SmsJob.ApprovalStatus.PENDING)
+                .page(io.quarkus.panache.common.Page.of(page, size));
+        List<SmsJob> items = query.list();
+        long total = SmsJob.count("approvalStatus", SmsJob.ApprovalStatus.PENDING);
+        return new PaginatedResult<>(items, total, page, size);
+    }
+
+    /**
+     * Simple result wrapper for pagination in service layer.
+     */
+    public record PaginatedResult<T>(List<T> items, long total, int page, int size) {
     }
 
     /**

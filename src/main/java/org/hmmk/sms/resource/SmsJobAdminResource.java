@@ -15,9 +15,7 @@ import org.hmmk.sms.dto.sms.SmsJobRejectRequest;
 import org.hmmk.sms.dto.sms.SmsJobResponse;
 import org.hmmk.sms.entity.sms.SmsJob;
 import org.hmmk.sms.service.SmsJobService;
-import io.quarkus.panache.common.Page;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -44,17 +42,20 @@ public class SmsJobAdminResource {
     }
 
     /**
-     * List all SMS jobs pending approval.
+     * List all SMS jobs pending approval with pagination.
      */
     @GET
     @Path("/pending")
     @Operation(summary = "List pending SMS jobs", description = "Get all SMS jobs that are pending approval")
-    @APIResponse(responseCode = "200", description = "List of pending SMS jobs")
-    public List<SmsJobResponse> listPendingJobs() {
-        List<SmsJob> jobs = smsJobService.listPendingApprovalJobs();
-        return jobs.stream()
+    @APIResponse(responseCode = "200", description = "Paginated list of pending SMS jobs")
+    public PaginatedResponse<SmsJobResponse> listPendingJobs(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
+        var result = smsJobService.listPendingApprovalJobs(page, size);
+        var items = result.items().stream()
                 .map(job -> SmsJobResponse.fromEntity(job, null))
                 .toList();
+        return new PaginatedResponse<>(items, result.total(), result.page(), result.size());
     }
 
     /**
