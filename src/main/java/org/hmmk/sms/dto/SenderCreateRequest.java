@@ -20,7 +20,4 @@ public class SenderCreateRequest {
     @Size(max = 255, message = "Sender name must be at most 255 characters")
     private String name;
 
-    @NotBlank(message = "Short code is required")
-    @Size(max = 200, message = "Short code must be at most 200 characters")
-    private String shortCode;
 }

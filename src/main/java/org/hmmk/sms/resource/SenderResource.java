@@ -27,7 +27,7 @@ import java.util.List;
 @Path("/api/senders")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "Sender", description = "Manage SMS sender masks/short codes")
+@Tag(name = "Sender", description = "Manage SMS sender masks")
 @RolesAllowed({ "tenant_admin", "tenant_user" })
 public class SenderResource {
 
@@ -52,16 +52,9 @@ public class SenderResource {
     public SenderResponse create(@Valid SenderCreateRequest request) {
         String tenantId = tenantIdFromJwt();
 
-        // Check if short code already exists for this tenant
-        Sender existing = Sender.find("tenantId = ?1 and shortCode = ?2", tenantId, request.getShortCode())
-                .firstResult();
-        if (existing != null) {
-            throw new BadRequestException("Short code already exists for this tenant");
-        }
-
         Sender sender = Sender.builder()
                 .name(request.getName())
-                .shortCode(request.getShortCode())
+
                 .status(Sender.SenderStatus.PENDING_VERIFICATION)
                 .build();
         sender.tenantId = tenantId;
@@ -136,15 +129,8 @@ public class SenderResource {
             throw new BadRequestException("Cannot update sender with status: " + sender.getStatus());
         }
 
-        // Check if new short code conflicts with existing (excluding current sender)
-        Sender existing = Sender.find("tenantId = ?1 and shortCode = ?2 and id != ?3",
-                tenantId, request.getShortCode(), id).firstResult();
-        if (existing != null) {
-            throw new BadRequestException("Short code already exists for this tenant");
-        }
-
         sender.setName(request.getName());
-        sender.setShortCode(request.getShortCode());
+
         sender.setStatus(Sender.SenderStatus.PENDING_VERIFICATION);
         sender.persist();
 

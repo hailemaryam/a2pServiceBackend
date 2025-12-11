@@ -21,7 +21,7 @@ public class SenderResponse {
 
     private String id;
     private String name;
-    private String shortCode;
+
     private Sender.SenderStatus status;
     private String tenantId;
     private Instant createdAt;
@@ -42,7 +42,7 @@ public class SenderResponse {
         return SenderResponse.builder()
                 .id(sender.id)
                 .name(sender.getName())
-                .shortCode(sender.getShortCode())
+
                 .status(sender.getStatus())
                 .tenantId(sender.tenantId)
                 .createdAt(sender.createdAt)

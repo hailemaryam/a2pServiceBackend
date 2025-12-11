@@ -10,12 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(
-        name = "sender",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"tenantId", "short_code"})
-        }
-)
+@Table(name = "sender")
 public class Sender extends TenantScopedEntity {
 
     @Id
@@ -23,9 +18,6 @@ public class Sender extends TenantScopedEntity {
     public String id;
 
     public String name;
-
-    @Column(name = "short_code", nullable = false,  length = 200)
-    public String shortCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
