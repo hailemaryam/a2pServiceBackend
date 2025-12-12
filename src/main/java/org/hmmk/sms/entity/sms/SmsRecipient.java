@@ -8,11 +8,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-@Table(
-        name = "sms_recipients",
-        indexes = {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "sms_recipients", indexes = {
         @Index(name = "idx_tenant_job", columnList = "tenantId, job_id")
 })
 public class SmsRecipient extends TenantScopedEntity {
@@ -28,6 +29,9 @@ public class SmsRecipient extends TenantScopedEntity {
     @Column(nullable = false)
     public String phoneNumber;
     public String message;
+
+    @Column(name = "webhook_url", columnDefinition = "TEXT")
+    public String webhookUrl;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     public SmsJob.MessageType messageType; // ENGLISH, UNICODE
@@ -35,5 +39,8 @@ public class SmsRecipient extends TenantScopedEntity {
     @Column(nullable = false)
     public RecipientStatus status;
     public Instant sentAt;
-    public enum RecipientStatus { PENDING, SENT, FAILED }
+
+    public enum RecipientStatus {
+        PENDING, SENT, FAILED
+    }
 }

@@ -41,6 +41,11 @@ public class SmsJobService {
      */
     @Transactional
     public SmsJob sendSingle(String tenantId, String userId, SingleSmsRequest req) {
+        return sendSingle(tenantId, userId, req, null);
+    }
+
+    @Transactional
+    public SmsJob sendSingle(String tenantId, String userId, SingleSmsRequest req, String webhookUrl) {
         validateSender(tenantId, req.getSenderId());
         Tenant tenant = getTenant(tenantId);
 
@@ -71,7 +76,7 @@ public class SmsJobService {
         deductCredits(tenant, smsCount);
 
         // Create recipient
-        createRecipient(job, req.getPhoneNumber(), req.getMessage(), messageType, tenantId);
+        createRecipient(job, req.getPhoneNumber(), req.getMessage(), messageType, tenantId, webhookUrl);
 
         return job;
     }
@@ -228,7 +233,7 @@ public class SmsJobService {
      * Creates a single SmsRecipient record.
      */
     private void createRecipient(SmsJob job, String phoneNumber, String message,
-            SmsJob.MessageType messageType, String tenantId) {
+            SmsJob.MessageType messageType, String tenantId, String webhookUrl) {
         SmsRecipient recipient = SmsRecipient.builder()
                 .senderId(job.senderId)
                 .job(job)
@@ -236,9 +241,15 @@ public class SmsJobService {
                 .message(message)
                 .messageType(messageType)
                 .status(SmsRecipient.RecipientStatus.PENDING)
+                .webhookUrl(webhookUrl)
                 .build();
         recipient.tenantId = tenantId;
         recipient.persist();
+    }
+
+    private void createRecipient(SmsJob job, String phoneNumber, String message,
+            SmsJob.MessageType messageType, String tenantId) {
+        createRecipient(job, phoneNumber, message, messageType, tenantId, null);
     }
 
     /**
