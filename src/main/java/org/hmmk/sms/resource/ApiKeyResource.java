@@ -11,7 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.apikey.ApiKeyRequest;
 import org.hmmk.sms.dto.apikey.ApiKeyResponse;
-import org.hmmk.sms.dto.PaginatedResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.ApiKey;
 import org.hmmk.sms.entity.Sender;
 

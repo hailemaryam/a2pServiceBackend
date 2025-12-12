@@ -11,7 +11,9 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.PaymentInitRequest;
 import org.hmmk.sms.dto.PaymentInitResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.Tenant;
+import org.hmmk.sms.entity.payment.PaymentTransaction;
 import org.hmmk.sms.service.PaymentService;
 
 @Path("/api/payments")
@@ -68,7 +70,7 @@ public class PaymentResource {
     @GET
     @Path("/transactions")
     @RolesAllowed({ "tenant_admin", "tenant_user" })
-    public org.hmmk.sms.dto.PaginatedResponse<org.hmmk.sms.entity.payment.PaymentTransaction> listTransactions(
+    public PaginatedResponse<PaymentTransaction> listTransactions(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size,
             @QueryParam("status") org.hmmk.sms.entity.payment.PaymentTransaction.PaymentStatus status) {

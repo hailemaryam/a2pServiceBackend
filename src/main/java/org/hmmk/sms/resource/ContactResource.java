@@ -15,7 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.dto.ContactDto;
-import org.hmmk.sms.dto.PaginatedResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.contact.Contact;
 import org.hmmk.sms.service.ContactImportService;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
 import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
 
 @Path("/api/contacts")
 @Produces(MediaType.APPLICATION_JSON)

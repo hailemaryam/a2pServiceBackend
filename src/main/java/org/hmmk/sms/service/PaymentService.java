@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import org.hmmk.sms.dto.ChapaInitResponse;
 import org.hmmk.sms.dto.PaymentInitResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.payment.PaymentTransaction;
 import org.hmmk.sms.entity.payment.SmsPackageTier;
@@ -169,7 +170,7 @@ public class PaymentService {
      * @param status   Optional status filter
      * @return Paginated list of transactions
      */
-    public org.hmmk.sms.dto.PaginatedResponse<PaymentTransaction> listTransactions(
+    public PaginatedResponse<PaymentTransaction> listTransactions(
             String tenantId, int page, int size, PaymentTransaction.PaymentStatus status) {
 
         io.quarkus.panache.common.Page p = io.quarkus.panache.common.Page.of(page, size);
@@ -190,6 +191,6 @@ public class PaymentService {
                 status != null ? "tenantId = :tenantId AND paymentStatus = :status" : "tenantId = :tenantId",
                 params);
 
-        return new org.hmmk.sms.dto.PaginatedResponse<>(items, total, page, size);
+        return new PaginatedResponse<>(items, total, page, size);
     }
 }

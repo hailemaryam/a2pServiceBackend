@@ -9,7 +9,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.hmmk.sms.dto.PaginatedResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.contact.ContactGroup;
 
 import java.util.List;

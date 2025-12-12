@@ -1,4 +1,4 @@
-package org.hmmk.sms.dto;
+package org.hmmk.sms.dto.common;
 
 import java.util.List;
 

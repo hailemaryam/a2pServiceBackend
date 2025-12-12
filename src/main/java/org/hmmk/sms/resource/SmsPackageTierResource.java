@@ -2,7 +2,6 @@ package org.hmmk.sms.resource;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.annotation.security.PermitAll;
-import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -10,12 +9,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.SmsPackageTierDto;
-import org.hmmk.sms.dto.PaginatedResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.payment.SmsPackageTier;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
+
 import io.quarkus.panache.common.Page;
 
 @Path("/api/admin/sms-packages")

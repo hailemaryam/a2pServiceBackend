@@ -10,7 +10,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.hmmk.sms.dto.PaginatedResponse;
+import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.dto.sms.SmsJobRejectRequest;
 import org.hmmk.sms.dto.sms.SmsJobResponse;
 import org.hmmk.sms.entity.sms.SmsJob;
