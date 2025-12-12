@@ -1,1 +1,1 @@
-ALTER TABLE sms_recipient ADD COLUMN webhook_url TEXT;
+ALTER TABLE sms_recipients ADD COLUMN webhook_url TEXT;

@@ -32,12 +32,6 @@ public class ApiKey extends TenantScopedEntity {
 
     public String name;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    public Instant createdAt;
-
-    @Column(name = "updated_at")
-    public Instant updatedAt;
-
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
