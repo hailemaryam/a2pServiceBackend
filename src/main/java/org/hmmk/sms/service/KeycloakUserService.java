@@ -17,7 +17,9 @@ public class KeycloakUserService {
 
     @Inject
     Keycloak keycloak;
-    public void createTenantAdminUser(String username, String email, String password, String tenantId, String firstName, String lastName) {
+
+    public void createTenantAdminUser(String username, String email, String password, String tenantId, String firstName,
+            String lastName) {
         UserRepresentation user = new UserRepresentation();
         user.setUsername(username);
         user.setEmail(email);
@@ -50,6 +52,33 @@ public class KeycloakUserService {
         // Assign tenant_admin role
         var roleRep = keycloak.realm("a2p-realm").roles().get("tenant_admin").toRepresentation();
         userResource.roles().realmLevel().add(List.of(roleRep));
+    }
+
+    /**
+     * Get user details by ID
+     */
+    public UserRepresentation getUser(String userId) {
+        return keycloak.realm("a2p-realm").users().get(userId).toRepresentation();
+    }
+
+    /**
+     * Update user details (firstName, lastName)
+     */
+    public void updateUser(String userId, UserRepresentation userRep) {
+        keycloak.realm("a2p-realm").users().get(userId).update(userRep);
+    }
+
+    /**
+     * Update user password
+     */
+    public void updatePassword(String userId, String newPassword) {
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(newPassword);
+        credential.setTemporary(false);
+
+        UserResource userResource = keycloak.realm("a2p-realm").users().get(userId);
+        userResource.resetPassword(credential);
     }
 
 }
