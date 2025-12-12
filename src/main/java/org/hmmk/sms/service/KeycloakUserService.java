@@ -81,4 +81,25 @@ public class KeycloakUserService {
         userResource.resetPassword(credential);
     }
 
+    /**
+     * Assign tenant ID to user and add tenant_admin role
+     */
+    public void assignTenantToUser(String userId, String tenantId) {
+        UserResource userResource = keycloak.realm("a2p-realm").users().get(userId);
+        UserRepresentation user = userResource.toRepresentation();
+
+        // Update attribute
+        Map<String, List<String>> attributes = user.getAttributes();
+        if (attributes == null) {
+            attributes = Map.of("tenantId", List.of(tenantId));
+        } else {
+            attributes.put("tenantId", List.of(tenantId));
+        }
+        user.setAttributes(attributes);
+        userResource.update(user);
+
+        // Assign tenant_admin role
+        var roleRep = keycloak.realm("a2p-realm").roles().get("tenant_admin").toRepresentation();
+        userResource.roles().realmLevel().add(List.of(roleRep));
+    }
 }

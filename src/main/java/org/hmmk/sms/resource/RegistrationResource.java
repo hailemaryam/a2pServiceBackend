@@ -1,5 +1,6 @@
 package org.hmmk.sms.resource;
 
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -7,8 +8,10 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.RegistrationRequest;
+import org.hmmk.sms.dto.TenantCreateRequest;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.service.KeycloakUserService;
 import org.keycloak.admin.client.Keycloak;
@@ -26,6 +29,9 @@ public class RegistrationResource {
 
     @Inject
     Keycloak keycloak;
+
+    @Inject
+    JsonWebToken jwt;
 
     @POST
     @PermitAll
@@ -50,6 +56,34 @@ public class RegistrationResource {
 
         return Response.status(Response.Status.CREATED)
                 .entity(Map.of("tenantId", tenant.id))
+                .build();
+    }
+
+    @POST
+    @Path("/onboard")
+    @Authenticated
+    @Transactional
+    public Response registerTenantForAuthenticatedUser(@Valid TenantCreateRequest request) {
+        String userId = jwt.getSubject();
+
+        // Check if user already has tenantId claim (optional but good practice)
+        // String existingTenantId = jwt.getClaim("tenantId");
+
+        // 1. Create Tenant
+        Tenant tenant = new Tenant();
+        tenant.name = request.getName();
+        // Email is not in request, maybe use jwt email if needed, or leave
+        // null/optional
+        // tenant.email = jwt.getClaim("email");
+        tenant.phone = request.getPhone();
+        tenant.status = Tenant.TenantStatus.ACTIVE;
+        tenant.persist();
+
+        // 2. Assign Tenant to User in Keycloak
+        keycloakAdminClient.assignTenantToUser(userId, tenant.id);
+
+        return Response.status(Response.Status.CREATED)
+                .entity(Map.of("tenantId", tenant.id, "message", "Tenant created. Please refresh token."))
                 .build();
     }
 }
