@@ -7,16 +7,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.hmmk.sms.dto.RegistrationRequest;
+import org.hmmk.sms.dto.RegistrationResponse;
 import org.hmmk.sms.dto.TenantCreateRequest;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.service.KeycloakUserService;
 import org.keycloak.admin.client.Keycloak;
-
-import java.util.Map;
 
 @Path("/api/register")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -36,7 +34,7 @@ public class RegistrationResource {
     @POST
     @PermitAll
     @Transactional
-    public Response registerTenantAndAdmin(@Valid RegistrationRequest request) {
+    public RegistrationResponse registerTenantAndAdmin(@Valid RegistrationRequest request) {
         // 1. Create Tenant
         Tenant tenant = new Tenant();
         tenant.name = request.getTenantName();
@@ -54,8 +52,8 @@ public class RegistrationResource {
                 request.getFirstName(),
                 request.getLastName());
 
-        return Response.status(Response.Status.CREATED)
-                .entity(Map.of("tenantId", tenant.id))
+        return RegistrationResponse.builder()
+                .tenantId(tenant.id)
                 .build();
     }
 
@@ -63,7 +61,7 @@ public class RegistrationResource {
     @Path("/onboard")
     @Authenticated
     @Transactional
-    public Response registerTenantForAuthenticatedUser(@Valid TenantCreateRequest request) {
+    public RegistrationResponse registerTenantForAuthenticatedUser(@Valid TenantCreateRequest request) {
         String userId = jwt.getSubject();
 
         // Check if user already has tenantId claim (optional but good practice)
@@ -82,8 +80,9 @@ public class RegistrationResource {
         // 2. Assign Tenant to User in Keycloak
         keycloakAdminClient.assignTenantToUser(userId, tenant.id);
 
-        return Response.status(Response.Status.CREATED)
-                .entity(Map.of("tenantId", tenant.id, "message", "Tenant created. Please refresh token."))
+        return RegistrationResponse.builder()
+                .tenantId(tenant.id)
+                .message("Tenant created. Please refresh token.")
                 .build();
     }
 }

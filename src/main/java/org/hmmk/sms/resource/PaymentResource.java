@@ -32,7 +32,7 @@ public class PaymentResource {
     @Path("/initialize")
     @RolesAllowed({ "tenant_admin", "tenant_user" })
     @Transactional
-    public Response initializePayment(@Valid PaymentInitRequest request) {
+    public PaymentInitResponse initializePayment(@Valid PaymentInitRequest request) {
         // 1. Get tenant from JWT
         String tenantId = jwt.getClaim("tenantId");
         if (tenantId == null) {
@@ -45,9 +45,7 @@ public class PaymentResource {
         }
 
         // 2. Delegate to service
-        PaymentInitResponse response = paymentService.initializePayment(tenant, request.getAmount());
-
-        return Response.ok(response).build();
+        return paymentService.initializePayment(tenant, request.getAmount());
     }
 
     /**
