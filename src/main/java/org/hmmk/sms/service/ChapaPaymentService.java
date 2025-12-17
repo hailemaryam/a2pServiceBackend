@@ -18,7 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ApplicationScoped
 public class ChapaPaymentService {
 
-    private static final String CHAPA_API_URL = "https://api.chapa.co/v1/transaction/initialize";
+    @ConfigProperty(name = "chapa.api-url", defaultValue = "https://api.chapa.co")
+    String chapaApiUrl;
 
     @ConfigProperty(name = "chapa.api-key")
     String chapaApiKey;
@@ -52,7 +53,7 @@ public class ChapaPaymentService {
             String requestBody = objectMapper.writeValueAsString(request);
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(CHAPA_API_URL))
+                    .uri(URI.create(chapaApiUrl + "/v1/transaction/initialize"))
                     .header("Authorization", "Bearer " + chapaApiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -87,7 +88,7 @@ public class ChapaPaymentService {
      */
     public org.hmmk.sms.dto.ChapaVerifyResponse verifyPayment(String txRef) {
         try {
-            String verifyUrl = "https://api.chapa.co/v1/transaction/verify/" + txRef;
+            String verifyUrl = chapaApiUrl + "/v1/transaction/verify/" + txRef;
 
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(verifyUrl))

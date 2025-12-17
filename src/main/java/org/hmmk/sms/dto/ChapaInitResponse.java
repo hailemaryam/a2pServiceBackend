@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ChapaInitResponse {
     private String message;
     private String status;

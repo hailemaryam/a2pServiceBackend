@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ChapaVerifyResponse {
     private String message;
     private String status;
