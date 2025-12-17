@@ -4,6 +4,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.dto.ContactDto;
 import org.hmmk.sms.entity.Tenant;
@@ -18,6 +19,8 @@ import jakarta.transaction.Transactional;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @QuarkusTest
 public class ContactResourceTest {
@@ -25,8 +28,6 @@ public class ContactResourceTest {
     @InjectMock
     JsonWebToken jwt;
 
-    @InjectMock
-    ContactImportService importService;
 
     private String tenantId;
 
@@ -105,5 +106,42 @@ public class ContactResourceTest {
         c.name = name;
         c.phone = phone;
         c.persist();
+    }
+
+    @Test
+    @TestSecurity(user = "tenant-admin", roles = "tenant_admin")
+    public void testUploadFile() throws Exception {
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(tenantId);
+
+        // Remove mock setup, real service used
+        // Mockito.when(importService.importFromCsv(...) ...);
+
+        given()
+                .contentType(ContentType.MULTIPART)
+                .multiPart("file", "contacts.csv", "phone,name\n+251911999999,Imported".getBytes())
+                .when()
+                .post("/api/contacts/upload-file")
+                .then()
+                .statusCode(200)
+                .body("size()", is(1))
+                .body("[0].name", is("Imported"));
+    }
+
+    @Test
+    @TestSecurity(user = "tenant-admin", roles = "tenant_admin")
+    public void testUploadCsv() throws Exception {
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(tenantId);
+
+        // Remove mock setup, real service used
+
+        given()
+                .contentType(ContentType.TEXT)
+                .body("phone,name\n+251911888888,Imported Direct")
+                .when()
+                .post("/api/contacts/upload")
+                .then()
+                .statusCode(200)
+                .body("size()", is(1))
+                .body("[0].name", is("Imported Direct"));
     }
 }
