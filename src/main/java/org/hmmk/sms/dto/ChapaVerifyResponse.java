@@ -1,17 +1,22 @@
 package org.hmmk.sms.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
+@Builder
 public class ChapaVerifyResponse {
     private String message;
     private String status;
     private ChapaVerifyData data;
 
     @Data
+    @Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
     public static class ChapaVerifyData {
         @JsonProperty("first_name")
         private String firstName;
