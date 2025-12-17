@@ -17,6 +17,11 @@ import java.util.Base64;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@AttributeOverrides({
+        @AttributeOverride(name = "tenantId", column = @Column(name = "\"tenantId\"")),
+        @AttributeOverride(name = "createdAt", column = @Column(name = "\"createdAt\"")),
+        @AttributeOverride(name = "updatedAt", column = @Column(name = "\"updatedAt\""))
+})
 public class ApiKey extends TenantScopedEntity {
 
     @Id
@@ -34,15 +39,9 @@ public class ApiKey extends TenantScopedEntity {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = Instant.now();
         if (this.apiKey == null) {
             this.apiKey = generateApiKey();
         }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = Instant.now();
     }
 
     public static String generateApiKey() {

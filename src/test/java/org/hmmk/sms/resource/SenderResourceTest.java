@@ -6,6 +6,7 @@ import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.dto.SenderCreateRequest;
+import org.hmmk.sms.entity.ApiKey;
 import org.hmmk.sms.entity.Sender;
 import org.hmmk.sms.entity.Tenant;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +29,7 @@ public class SenderResourceTest {
     @BeforeEach
     @Transactional
     public void setup() {
+        ApiKey.deleteAll();
         Sender.deleteAll();
         if (TENANT_ID != null && !TENANT_ID.isEmpty()) {
             Tenant.delete("id", TENANT_ID);
