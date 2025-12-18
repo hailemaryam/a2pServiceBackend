@@ -1,5 +1,6 @@
 package org.hmmk.sms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.Data;
 @Builder
 @lombok.NoArgsConstructor
 @lombok.AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChapaInitResponse {
     private String message;
     private String status;
@@ -17,6 +19,7 @@ public class ChapaInitResponse {
     @Builder
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ChapaData {
         @JsonProperty("checkout_url")
         private String checkoutUrl;

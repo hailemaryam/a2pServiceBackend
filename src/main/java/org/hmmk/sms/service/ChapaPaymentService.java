@@ -46,7 +46,7 @@ public class ChapaPaymentService {
                     .callbackUrl(callbackUrl)
                     .returnUrl(returnUrl)
                     .customization(Map.of(
-                            "title", "FastSMS Credit Purchase",
+                            "title", "SMS Credit",
                             "description", "SMS Credit Top-up"))
                     .build();
 
@@ -60,7 +60,6 @@ public class ChapaPaymentService {
                     .build();
 
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
             ChapaInitResponse chapaResponse = objectMapper.readValue(response.body(), ChapaInitResponse.class);
 
             if (!"success".equalsIgnoreCase(chapaResponse.getStatus())) {
