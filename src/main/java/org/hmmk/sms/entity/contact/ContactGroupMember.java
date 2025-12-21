@@ -1,13 +1,8 @@
 package org.hmmk.sms.entity.contact;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hmmk.sms.entity.TenantScopedEntity;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "contact_group_members")

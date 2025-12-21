@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hmmk.sms.entity.TenantScopedEntity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "contacts", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"tenantId", "phone"})
@@ -21,4 +24,8 @@ public class Contact extends TenantScopedEntity {
     public String phone;
     public String name;
     public String email;
+
+    @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ContactGroupMember> groupMembers = new HashSet<>();
 }
