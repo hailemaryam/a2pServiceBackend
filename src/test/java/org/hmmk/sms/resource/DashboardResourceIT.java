@@ -3,7 +3,6 @@ package org.hmmk.sms.resource;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.restassured.http.ContentType;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.contact.Contact;
@@ -14,9 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import jakarta.transaction.Transactional;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 
 @QuarkusTest
 public class DashboardResourceIT {
@@ -79,6 +82,7 @@ public class DashboardResourceIT {
         r1.message = "Hello 1";
         r1.messageType = SmsJob.MessageType.English;
         r1.status = SmsRecipient.RecipientStatus.SENT;
+        r1.sentAt = Instant.now().minus(5, ChronoUnit.DAYS);
         r1.persist();
 
         SmsRecipient r2 = new SmsRecipient();
@@ -89,6 +93,7 @@ public class DashboardResourceIT {
         r2.message = "Hello 2";
         r2.messageType = SmsJob.MessageType.English;
         r2.status = SmsRecipient.RecipientStatus.SENT;
+        r2.sentAt = Instant.now().minus(60, ChronoUnit.DAYS);
         r2.persist();
 
         // create MANUAL job with 1 recipient (SENT)
@@ -113,6 +118,7 @@ public class DashboardResourceIT {
         r3.message = "Manual Hello";
         r3.messageType = SmsJob.MessageType.English;
         r3.status = SmsRecipient.RecipientStatus.SENT;
+        r3.sentAt = Instant.now().minus(400, ChronoUnit.DAYS);
         r3.persist();
 
         // create CSV_UPLOAD job with 0 recipients (to test zero count)
@@ -146,5 +152,45 @@ public class DashboardResourceIT {
                 .body("smsSentBySource.MANUAL", is(1))
                 .body("smsSentBySource.CSV_UPLOAD", is(0));
     }
-}
 
+    @Test
+    @TestSecurity(user = "tenant-admin", roles = "tenant_admin")
+    public void testGetSmsOverviewDefaultMonthly() {
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(TENANT_ID);
+
+        given()
+                .when()
+                .get("/api/dashboard/overview")
+                .then()
+                .statusCode(200)
+                .body("granularity", is("MONTH"))
+                .body("points", hasSize(12));
+    }
+
+    @Test
+    @TestSecurity(user = "tenant-admin", roles = "tenant_admin")
+    public void testGetSmsOverviewQuarterly() {
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(TENANT_ID);
+
+        given()
+                .when()
+                .get("/api/dashboard/overview?granularity=quarter")
+                .then()
+                .statusCode(200)
+                .body("granularity", is("QUARTER"))
+                .body("points", hasSize(12));
+    }
+
+    @Test
+    @TestSecurity(user = "tenant-admin", roles = "tenant_admin")
+    public void testGetSmsOverviewInvalidGranularity() {
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(TENANT_ID);
+
+        given()
+                .when()
+                .get("/api/dashboard/overview?granularity=weekly")
+                .then()
+                .statusCode(400)
+                .body(is("Invalid granularity. Use MONTH, QUARTER, or YEAR."));
+    }
+}
