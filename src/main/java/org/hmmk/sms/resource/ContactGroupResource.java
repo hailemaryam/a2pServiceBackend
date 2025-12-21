@@ -14,6 +14,7 @@ import org.hmmk.sms.entity.contact.ContactGroup;
 
 import java.util.List;
 import io.quarkus.panache.common.Page;
+import org.hmmk.sms.entity.contact.ContactGroupMember;
 
 @Path("/api/contact-groups")
 @Produces(MediaType.APPLICATION_JSON)
@@ -88,6 +89,7 @@ public class ContactGroupResource {
         String query = "DELETE FROM ContactGroup WHERE id = ?1 AND tenantId = ?2";
         ContactGroup g = ContactGroup.find("id = ?1 and tenantId = ?2", id, tenantId).firstResult();
         if (g == null) throw new NotFoundException();
+        ContactGroupMember.delete("groupId", id);
         g.delete();
     }
 }

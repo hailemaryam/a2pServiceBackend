@@ -14,11 +14,11 @@ public class ContactGroupMember  extends TenantScopedEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     public String id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "group_id")
     private ContactGroup group;
 }

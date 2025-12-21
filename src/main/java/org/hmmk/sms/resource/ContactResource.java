@@ -17,6 +17,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.hmmk.sms.dto.ContactDto;
 import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.contact.Contact;
+import org.hmmk.sms.entity.contact.ContactGroupMember;
 import org.hmmk.sms.service.ContactImportService;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.jboss.resteasy.reactive.RestForm;
@@ -101,6 +102,7 @@ public class ContactResource {
         String query = tenantId == null ? "id = ?1" : "id = ?1 and tenantId = ?2";
         Contact c = Contact.find(query, tenantId == null ? id : new Object[]{id, tenantId}).firstResult();
         if (c == null) throw new NotFoundException();
+        ContactGroupMember.delete("contactId", id);
         c.delete();
     }
 
