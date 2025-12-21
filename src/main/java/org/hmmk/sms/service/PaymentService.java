@@ -193,7 +193,7 @@ public class PaymentService {
 
         return new PaginatedResponse<>(items, total, page, size);
     }
-    public PaymentTransaction getTransactionById(String transactionId, String tenantId) {
+    public PaymentTransaction getTransactionById(String tenantId, String transactionId) {
         String query = "id = :id AND tenantId = :tenantId";
         java.util.Map<String, Object> params = new java.util.HashMap<>();
         params.put("id", transactionId);
