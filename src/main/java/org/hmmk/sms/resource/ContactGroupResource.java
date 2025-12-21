@@ -75,4 +75,19 @@ public class ContactGroupResource {
         if (g == null) throw new NotFoundException();
         return g;
     }
+
+    /**
+     * Delete a contact group by ID.
+     */
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("tenant_admin")
+    @Transactional
+    public void delete(@PathParam("id") String id) {
+        String tenantId = tenantIdFromJwt();
+        String query = "DELETE FROM ContactGroup WHERE id = ?1 AND tenantId = ?2";
+        ContactGroup g = ContactGroup.find("id = ?1 and tenantId = ?2", id, tenantId).firstResult();
+        if (g == null) throw new NotFoundException();
+        g.delete();
+    }
 }

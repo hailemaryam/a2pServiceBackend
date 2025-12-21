@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * REST resource for SMS sending operations.
@@ -151,5 +152,37 @@ public class SmsJobResource {
         } catch (IOException e) {
             throw new BadRequestException("Failed to read CSV file: " + e.getMessage());
         }
+    }
+    /**
+     * list all SMS jobs for the current tenant with pagination.
+     */
+    @GET
+    @RolesAllowed("tenant_admin")
+    @Operation(summary = "List SMS jobs", description = "Get all SMS jobs for the current tenant with pagination")
+    public org.hmmk.sms.dto.common.PaginatedResponse<SmsJob> list(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
+        String tenantId = tenantIdFromJwt();
+        var query = SmsJob.find("tenantId", tenantId).page(io.quarkus.panache.common.Page.of(page, size));
+        List<SmsJob> items = query.list();
+        long total = SmsJob.count("tenantId", tenantId);
+        return new org.hmmk.sms.dto.common.PaginatedResponse<>(items, total, page, size);
+    }
+    /**
+     * Get pending SMS jobs that require approval.
+     */
+    @GET
+    @Path("/pending-approvals")
+    @RolesAllowed("tenant_admin")
+    @Operation(summary = "Get pending SMS jobs for approval", description = "Retrieve SMS jobs that are pending approval")
+    public org.hmmk.sms.dto.common.PaginatedResponse<SmsJob> getPendingApprovals(
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size
+    ) {
+        String tenantId = tenantIdFromJwt();
+        var query = SmsJob.find("tenantId = ?1 and approvalStatus = ?2", tenantId, SmsJob.ApprovalStatus.PENDING);
+        List<SmsJob> items = query.list();
+        long total = items.size();
+        return new org.hmmk.sms.dto.common.PaginatedResponse<>(items, total, page, size);
     }
 }

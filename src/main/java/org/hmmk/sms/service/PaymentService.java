@@ -193,4 +193,15 @@ public class PaymentService {
 
         return new PaginatedResponse<>(items, total, page, size);
     }
+    public PaymentTransaction getTransactionById(String transactionId, String tenantId) {
+        String query = "id = :id AND tenantId = :tenantId";
+        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        params.put("id", transactionId);
+        params.put("tenantId", tenantId);
+        PaymentTransaction transaction = PaymentTransaction.find(query, params).firstResult();
+        if (transaction == null) {
+            throw new BadRequestException("Transaction not found: " + transactionId);
+        }
+        return transaction;
+    }
 }

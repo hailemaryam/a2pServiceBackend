@@ -80,4 +80,18 @@ public class PaymentResource {
 
         return paymentService.listTransactions(tenantId, page, size, status);
     }
+
+    /**
+     * Get details of a specific payment transaction by its ID.
+     */
+    @GET
+    @Path("/transactions/{id}")
+    @RolesAllowed({ "tenant_admin", "tenant_user" })
+    public PaymentTransaction getTransactionById(@PathParam("id") String id) {
+        String tenantId = jwt.getClaim("tenantId");
+        if (tenantId == null) {
+            throw new ForbiddenException("No tenant associated with this user");
+        }
+        return paymentService.getTransactionById(tenantId, id);
+    }
 }

@@ -24,6 +24,27 @@ import java.util.List;
 public class ContactImportService {
 
     @Transactional
+    public void addContactsToGroup(String tenantId, String groupId, List<String> contactIds) {
+        ContactGroup group = ContactGroup.findById(groupId);
+        if (group == null || group.tenantId == null || !group.tenantId.equals(tenantId)) {
+            throw new BadRequestException("Invalid groupId");
+        }
+        for (String contactId : contactIds) {
+            Contact contact = Contact.findById(contactId);
+            if (contact != null && contact.tenantId != null && contact.tenantId.equals(tenantId)) {
+                ContactGroupMember existing = ContactGroupMember.find("group = ?1 and contact = ?2 and tenantId = ?3", group, contact, tenantId).firstResult();
+                if (existing == null) {
+                    ContactGroupMember member = new ContactGroupMember();
+                    member.setContact(contact);
+                    member.setGroup(group);
+                    member.tenantId = tenantId;
+                    member.persist();
+                }
+            }
+        }
+    }
+
+    @Transactional
     public List<Contact> importFromCsv(InputStream csvStream, String tenantId, String groupId) throws Exception {
         if (tenantId == null || tenantId.isBlank()) {
             throw new BadRequestException("tenantId missing from JWT");

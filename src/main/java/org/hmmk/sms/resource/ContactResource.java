@@ -92,6 +92,18 @@ public class ContactResource {
         return c;
     }
 
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("tenant_admin")
+    @Transactional
+    public void delete(@PathParam("id") String id) {
+        String tenantId = tenantIdFromJwt();
+        String query = tenantId == null ? "id = ?1" : "id = ?1 and tenantId = ?2";
+        Contact c = Contact.find(query, tenantId == null ? id : new Object[]{id, tenantId}).firstResult();
+        if (c == null) throw new NotFoundException();
+        c.delete();
+    }
+
     @GET
     @Path("/search/by-phone")
     @RolesAllowed("tenant_admin")
@@ -123,5 +135,21 @@ public class ContactResource {
     public List<Contact> uploadCsv(InputStream body, @QueryParam("groupId") String groupId) throws Exception {
         String tenantId = tenantIdFromJwt();
         return importService.importFromCsv(body, tenantId, groupId);
+    }
+
+    /**
+     * add contacts to a contact group.
+     *
+     */
+    @POST
+    @Path("/add-to-group/{groupId}")
+    @RolesAllowed("tenant_admin")
+    @Transactional
+    public void addToGroup(@PathParam("groupId") String groupId, @QueryParam("contactIds") List<String> contactIds) {
+        String tenantId = tenantIdFromJwt();
+        if (tenantId == null || tenantId.isBlank()) {
+            throw new BadRequestException("tenantId missing from JWT");
+        }
+        importService.addContactsToGroup(tenantId, groupId, contactIds);
     }
 }
