@@ -2,6 +2,8 @@ package org.hmmk.sms.resource;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.transaction.Transactional;
+import org.hmmk.sms.entity.ApiKey;
+import org.hmmk.sms.entity.Sender;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.contact.Contact;
 import org.hmmk.sms.entity.contact.ContactGroup;
@@ -21,6 +23,7 @@ public class ContactCascadeTest {
         ContactGroupMember.deleteAll();
         ContactGroup.deleteAll();
         Contact.deleteAll();
+        ApiKey.deleteAll();
         Tenant.deleteAll();
     }
 
