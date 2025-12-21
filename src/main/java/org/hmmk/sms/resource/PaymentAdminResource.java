@@ -10,6 +10,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.hmmk.sms.dto.PaymentTransactionHistoryPoint;
 import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.payment.PaymentTransaction;
 import org.hmmk.sms.service.PaymentService;
@@ -33,5 +34,12 @@ public class PaymentAdminResource {
             @QueryParam("tenantId") String tenantId) {
         return paymentService.listAllTransactions(page, size, status, tenantId);
     }
-}
 
+    @GET
+    @Path("/transactions/history")
+    @Operation(summary = "Payment transaction history", description = "Aggregate successful payments for graphing")
+    public java.util.List<PaymentTransactionHistoryPoint> listTransactionHistory(
+            @QueryParam("days") @DefaultValue("30") int days) {
+        return paymentService.listTransactionHistory(days);
+    }
+}

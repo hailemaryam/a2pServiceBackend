@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
 import org.hmmk.sms.dto.ChapaInitResponse;
 import org.hmmk.sms.dto.PaymentInitResponse;
+import org.hmmk.sms.dto.PaymentTransactionHistoryPoint;
 import org.hmmk.sms.dto.common.PaginatedResponse;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.payment.PaymentTransaction;
@@ -12,7 +13,13 @@ import org.hmmk.sms.entity.payment.SmsPackageTier;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class PaymentService {
@@ -237,5 +244,37 @@ public class PaymentService {
         }
 
         return new PaginatedResponse<>(items, total, page, size);
+    }
+
+    public java.util.List<PaymentTransactionHistoryPoint> listTransactionHistory(int days) {
+        if (days <= 0) {
+            throw new BadRequestException("Days must be greater than zero");
+        }
+
+        Instant from = Instant.now().minus(days, ChronoUnit.DAYS);
+        Instant startBoundary = from.truncatedTo(ChronoUnit.DAYS);
+        java.util.List<PaymentTransaction> transactions = PaymentTransaction
+                .find("paymentStatus = ?1 AND createdAt >= ?2 ORDER BY createdAt ASC",
+                        PaymentTransaction.PaymentStatus.SUCCESSFUL,
+                        startBoundary)
+                .list();
+
+        ZoneId zone = ZoneOffset.UTC;
+        Map<java.time.LocalDate, java.math.BigDecimal> totalsByDay = new LinkedHashMap<>();
+
+        for (PaymentTransaction tx : transactions) {
+            if (tx.createdAt == null || tx.amountPaid == null) {
+                continue;
+            }
+            java.time.LocalDate date = tx.createdAt.atZone(zone).toLocalDate();
+            totalsByDay.merge(date, tx.amountPaid, java.math.BigDecimal::add);
+        }
+
+        return totalsByDay.entrySet().stream()
+                .map(entry -> PaymentTransactionHistoryPoint.builder()
+                        .timestamp(entry.getKey().atStartOfDay(zone).toInstant())
+                        .totalAmount(entry.getValue())
+                        .build())
+                .toList();
     }
 }

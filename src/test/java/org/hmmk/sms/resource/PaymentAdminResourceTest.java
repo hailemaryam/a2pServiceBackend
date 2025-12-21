@@ -48,5 +48,23 @@ public class PaymentAdminResourceTest {
                 .body("total", is(1))
                 .body("items[0].id", is("trx-1"));
     }
-}
 
+    @Test
+    @TestSecurity(user = "sys-admin", roles = "sys_admin")
+    public void listTransactionHistory() {
+        var point = org.hmmk.sms.dto.PaymentTransactionHistoryPoint.builder()
+                .timestamp(java.time.Instant.now().truncatedTo(java.time.temporal.ChronoUnit.DAYS))
+                .totalAmount(new java.math.BigDecimal("150"))
+                .build();
+
+        Mockito.when(paymentService.listTransactionHistory(30)).thenReturn(java.util.List.of(point));
+
+        given()
+                .when()
+                .get("/api/admin/payments/transactions/history")
+                .then()
+                .statusCode(200)
+                .body("size()", is(1))
+                .body("[0].totalAmount", is(150));
+    }
+}
