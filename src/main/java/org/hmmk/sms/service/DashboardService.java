@@ -5,14 +5,17 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import org.hmmk.sms.dto.AdminDashboardResponse;
 import org.hmmk.sms.dto.DashboardOverviewResponse;
 import org.hmmk.sms.dto.DashboardResponse;
 import org.hmmk.sms.dto.DashboardTimeSeriesPoint;
 import org.hmmk.sms.dto.SmsSentBySource;
+import org.hmmk.sms.entity.Sender;
 import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.contact.Contact;
 import org.hmmk.sms.entity.sms.SmsJob;
 import org.hmmk.sms.entity.sms.SmsRecipient;
+import org.hmmk.sms.entity.payment.SmsPackageTier;
 
 import java.sql.Timestamp;
 import java.time.Clock;
@@ -48,6 +51,20 @@ public class DashboardService {
                 .remainingCredits(remaining)
                 .contactCount(contacts)
                 .smsSentBySource(smsBySource)
+                .build();
+    }
+
+    public AdminDashboardResponse getAdminDashboardOverview() {
+        long tenantCount = Tenant.count();
+        long pendingSenderCount = Sender.count("status", Sender.SenderStatus.PENDING_VERIFICATION);
+        long pendingSmsJobCount = SmsJob.count("approvalStatus", SmsJob.ApprovalStatus.PENDING);
+        long activePackageCount = SmsPackageTier.count("isActive", true);
+
+        return AdminDashboardResponse.builder()
+                .tenantCount(tenantCount)
+                .pendingSenderCount(pendingSenderCount)
+                .pendingSmsJobCount(pendingSmsJobCount)
+                .activePackageCount(activePackageCount)
                 .build();
     }
 

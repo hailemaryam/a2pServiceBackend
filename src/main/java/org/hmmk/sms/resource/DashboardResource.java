@@ -9,6 +9,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.hmmk.sms.dto.AdminDashboardResponse;
 import org.hmmk.sms.dto.DashboardOverviewResponse;
 import org.hmmk.sms.dto.DashboardResponse;
 import org.hmmk.sms.dto.SmsSentBySource;
@@ -44,6 +45,13 @@ public class DashboardResource {
                     .build();
         }
         return dashboardService.getDashboard(tenantId);
+    }
+
+    @GET
+    @Path("/admin")
+    @RolesAllowed("sys_admin")
+    public AdminDashboardResponse getAdminDashboard() {
+        return dashboardService.getAdminDashboardOverview();
     }
 
     @GET
