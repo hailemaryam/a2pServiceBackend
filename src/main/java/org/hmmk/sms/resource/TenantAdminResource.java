@@ -85,4 +85,18 @@ public class TenantAdminResource {
         tenant.smsApprovalThreshold = request.getApprovalThreshold();
         return TenantResponse.from(tenant);
     }
+    @PUT
+    @Path("/{id}/credit")
+    @Transactional
+    @Operation(summary = "Update SMS credit", description = "Update the SMS credit for a tenant")
+    @APIResponse(responseCode = "200", description = "Updated tenant", content = @Content(schema = @Schema(implementation = TenantResponse.class)))
+    @APIResponse(responseCode = "404", description = "Tenant not found")
+    public TenantResponse updateSmsCredit(@PathParam("id") String id, @QueryParam("amount") long amount) {
+        Tenant tenant = Tenant.findById(id);
+        if (tenant == null) {
+            throw new NotFoundException("Tenant not found");
+        }
+        tenant.smsCredit += amount;
+        return TenantResponse.from(tenant);
+    }
 }
