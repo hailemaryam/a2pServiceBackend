@@ -204,4 +204,38 @@ public class PaymentService {
         }
         return transaction;
     }
+    public PaginatedResponse<PaymentTransaction> listAllTransactions(
+            int page,
+            int size,
+            PaymentTransaction.PaymentStatus status,
+            String tenantIdFilter) {
+        io.quarkus.panache.common.Page p = io.quarkus.panache.common.Page.of(page, size);
+        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        java.util.List<String> conditions = new java.util.ArrayList<>();
+
+        if (status != null) {
+            conditions.add("paymentStatus = :status");
+            params.put("status", status);
+        }
+
+        if (tenantIdFilter != null && !tenantIdFilter.isBlank()) {
+            conditions.add("tenantId = :tenantId");
+            params.put("tenantId", tenantIdFilter);
+        }
+
+        String orderClause = "ORDER BY createdAt DESC";
+        java.util.List<PaymentTransaction> items;
+        long total;
+
+        if (conditions.isEmpty()) {
+            items = PaymentTransaction.find(orderClause).page(p).list();
+            total = PaymentTransaction.count();
+        } else {
+            String whereClause = String.join(" AND ", conditions);
+            items = PaymentTransaction.find(whereClause + " " + orderClause, params).page(p).list();
+            total = PaymentTransaction.count(whereClause, params);
+        }
+
+        return new PaginatedResponse<>(items, total, page, size);
+    }
 }
