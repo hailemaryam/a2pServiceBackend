@@ -44,7 +44,7 @@ public class ChapaPaymentService {
                     .phoneNumber(phone != null ? phone : "0900000000")
                     .txRef(txRef)
                     .callbackUrl(callbackUrl)
-                    .returnUrl(returnUrl)
+                    .returnUrl(returnUrl + txRef)
                     .customization(Map.of(
                             "title", "SMS Credit",
                             "description", "SMS Credit Top-up"))
