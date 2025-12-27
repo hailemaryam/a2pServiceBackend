@@ -63,6 +63,7 @@ public class RegistrationResource {
     @Transactional
     public RegistrationResponse registerTenantForAuthenticatedUser(@Valid TenantCreateRequest request) {
         String userId = jwt.getSubject();
+        String tenantId = jwt.getClaim("tenantId");
 
         // Check if user already has tenantId claim (optional but good practice)
         // String existingTenantId = jwt.getClaim("tenantId");
@@ -78,7 +79,9 @@ public class RegistrationResource {
         tenant.persist();
 
         // 2. Assign Tenant to User in Keycloak
-        keycloakAdminClient.assignTenantToUser(userId, tenant.id);
+        if (tenantId == null) {
+            keycloakAdminClient.assignTenantToUser(userId, tenant.id);
+        }
 
         return RegistrationResponse.builder()
                 .tenantId(tenant.id)

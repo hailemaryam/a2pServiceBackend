@@ -40,7 +40,8 @@ public class ContactResource {
     JsonWebToken jwt;
 
     private String tenantIdFromJwt() {
-        if (jwt == null) return null;
+        if (jwt == null)
+            return null;
         Object claim = jwt.getClaim("tenantId");
         return claim == null ? null : claim.toString();
     }
@@ -65,7 +66,8 @@ public class ContactResource {
     @Transactional
     public Contact update(@PathParam("id") String id, @Valid ContactDto dto) {
         Contact c = Contact.findById(id);
-        if (c == null) throw new NotFoundException();
+        if (c == null)
+            throw new NotFoundException();
         c.phone = dto.phone;
         c.name = dto.name;
         c.email = dto.email;
@@ -74,8 +76,9 @@ public class ContactResource {
     }
 
     @GET
-    @RolesAllowed({"tenant_admin"})
-    public PaginatedResponse<Contact> list(@QueryParam("page") @DefaultValue("0") int page, @QueryParam("size") @DefaultValue("20") int size) {
+    @RolesAllowed({ "tenant_admin" })
+    public PaginatedResponse<Contact> list(@QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
         String tenantId = tenantIdFromJwt();
         Page p = Page.of(page, size);
         var query = Contact.find("tenantId", tenantId).page(p);
@@ -89,7 +92,8 @@ public class ContactResource {
     @PermitAll
     public Contact getById(@PathParam("id") String id) {
         Contact c = Contact.findById(id);
-        if (c == null) throw new NotFoundException();
+        if (c == null)
+            throw new NotFoundException();
         return c;
     }
 
@@ -99,9 +103,10 @@ public class ContactResource {
     @Transactional
     public void delete(@PathParam("id") String id) {
         String tenantId = tenantIdFromJwt();
-        String query = tenantId == null ? "id = ?1" : "id = ?1 and tenantId = ?2";
-        Contact c = Contact.find(query, tenantId == null ? id : new Object[]{id, tenantId}).firstResult();
-        if (c == null) throw new NotFoundException();
+        String query = "id = ?1 and tenantId = ?2";
+        Contact c = Contact.find(query, id, tenantId).firstResult();
+        if (c == null)
+            throw new NotFoundException();
         ContactGroupMember.delete("contactId", id);
         c.delete();
     }
@@ -111,7 +116,8 @@ public class ContactResource {
     @RolesAllowed("tenant_admin")
     public Contact findByPhone(@QueryParam("phone") String phone) {
         String tenantId = tenantIdFromJwt();
-        if (tenantId == null) return Contact.find("phone", phone).firstResult();
+        if (tenantId == null)
+            return Contact.find("phone", phone).firstResult();
         return Contact.find("tenantId = ?1 and phone = ?2", tenantId, phone).firstResult();
     }
 
@@ -119,10 +125,13 @@ public class ContactResource {
     @Path("/upload-file")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @RolesAllowed("tenant_admin")
-    public List<Contact> uploadFile(@RestForm("file") FileUpload file, @QueryParam("groupId") String groupId) throws Exception {
-        if (file == null) throw new BadRequestException("file missing");
+    public List<Contact> uploadFile(@RestForm("file") FileUpload file, @QueryParam("groupId") String groupId)
+            throws Exception {
+        if (file == null)
+            throw new BadRequestException("file missing");
         java.nio.file.Path uploaded = file.uploadedFile();
-        if (uploaded == null) throw new BadRequestException("file missing");
+        if (uploaded == null)
+            throw new BadRequestException("file missing");
         try (InputStream in = Files.newInputStream(uploaded)) {
             String tenantId = tenantIdFromJwt();
             return importService.importFromCsv(in, tenantId, groupId);
@@ -131,7 +140,7 @@ public class ContactResource {
 
     @POST
     @Path("/upload")
-    @Consumes({MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM})
+    @Consumes({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_OCTET_STREAM })
     @RolesAllowed("tenant_admin")
     @RequestBody(description = "Upload CSV or Excel file as binary", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM, schema = @Schema(type = SchemaType.STRING, format = "binary")))
     public List<Contact> uploadCsv(InputStream body, @QueryParam("groupId") String groupId) throws Exception {
