@@ -152,11 +152,31 @@ public class PaymentService {
             // Credit SMS to tenant
             creditSmsToTenant(transaction.tenantId, transaction.smsCredited);
 
-        } else {
-            // Payment failed
-            transaction.paymentStatus = PaymentTransaction.PaymentStatus.FAILED;
-            transaction.persist();
         }
+    }
+
+    public PaymentTransaction verifyTransaction(PaymentTransaction transaction) {
+        // check transaction status
+        if (transaction.paymentStatus != PaymentTransaction.PaymentStatus.IN_PROGRESS) {
+            return transaction;
+        }
+
+        // verify transaction with Chapa
+        org.hmmk.sms.dto.ChapaVerifyResponse verifyResponse = chapaPaymentService.verifyPayment(transaction.id);
+
+        // update transaction status based on verification result
+        if ("success".equalsIgnoreCase(verifyResponse.getStatus())
+                && verifyResponse.getData() != null
+                && "success".equalsIgnoreCase(verifyResponse.getData().getStatus())) {
+
+            // Payment successful - update transaction and credit SMS
+            transaction.paymentStatus = PaymentTransaction.PaymentStatus.SUCCESSFUL;
+            transaction.persist();
+
+            // Credit SMS to tenant
+            creditSmsToTenant(transaction.tenantId, transaction.smsCredited);
+        }
+        return transaction;
     }
 
     private void creditSmsToTenant(String tenantId, int smsCredits) {
@@ -200,6 +220,7 @@ public class PaymentService {
 
         return new PaginatedResponse<>(items, total, page, size);
     }
+
     public PaymentTransaction getTransactionById(String tenantId, String transactionId) {
         String query = "id = :id AND tenantId = :tenantId";
         java.util.Map<String, Object> params = new java.util.HashMap<>();
@@ -211,6 +232,7 @@ public class PaymentService {
         }
         return transaction;
     }
+
     public PaginatedResponse<PaymentTransaction> listAllTransactions(
             int page,
             int size,

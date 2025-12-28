@@ -92,6 +92,8 @@ public class PaymentResource {
         if (tenantId == null) {
             throw new ForbiddenException("No tenant associated with this user");
         }
-        return paymentService.getTransactionById(tenantId, id);
+        PaymentTransaction transaction = paymentService.getTransactionById(tenantId, id);
+        paymentService.verifyTransaction(transaction);
+        return transaction;
     }
 }
