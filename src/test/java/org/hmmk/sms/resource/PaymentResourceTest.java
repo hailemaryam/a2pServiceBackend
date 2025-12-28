@@ -121,6 +121,36 @@ public class PaymentResourceTest {
                 .statusCode(200);
     }
 
+    @Test
+    @TestSecurity(user = "admin", roles = "tenant_admin")
+    public void testGetTransactionById() {
+        // 1. Create a pending transaction
+        Tenant tenant = Tenant.findById(tenantId);
+        SmsPackageTier tier = SmsPackageTier.findAll().firstResult();
+        String txRef = createPendingTransaction(tenant, tier);
+
+        // 2. Mock JWT
+        Mockito.when(jwt.getClaim("tenantId")).thenReturn(tenantId);
+
+        // 3. Mock Chapa Verify (needed because verifyTransaction is called in
+        // PaymentResource)
+        Mockito.when(chapaPaymentService.verifyPayment(txRef))
+                .thenReturn(ChapaVerifyResponse.builder()
+                        .status("success")
+                        .data(ChapaVerifyResponse.ChapaVerifyData.builder().status("success").build())
+                        .build());
+
+        // 4. Call GET and verify it's SUCCESSFUL (200 OK) and serializable
+        given()
+                .when()
+                .get("/api/payments/transactions/{id}", txRef)
+                .then()
+                .statusCode(200)
+                .body("id", is(txRef))
+                .body("paymentStatus", is("SUCCESSFUL"))
+                .body("smsPackage.id", is(tier.id));
+    }
+
     @Transactional
     String createPendingTransaction(Tenant tenant, SmsPackageTier tier) {
         PaymentTransaction tx = new PaymentTransaction();

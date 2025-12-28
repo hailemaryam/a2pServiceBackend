@@ -11,6 +11,8 @@ import org.hmmk.sms.entity.Tenant;
 import org.hmmk.sms.entity.payment.PaymentTransaction;
 import org.hmmk.sms.entity.payment.SmsPackageTier;
 
+import org.hibernate.Hibernate;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -176,6 +178,10 @@ public class PaymentService {
             // Credit SMS to tenant
             creditSmsToTenant(transaction.tenantId, transaction.smsCredited);
         }
+
+        // Initialize lazy association to avoid 500 error during serialization
+        Hibernate.initialize(transaction.smsPackage);
+
         return transaction;
     }
 
@@ -230,6 +236,10 @@ public class PaymentService {
         if (transaction == null) {
             throw new BadRequestException("Transaction not found: " + transactionId);
         }
+
+        // Initialize lazy association to avoid 500 error during serialization
+        Hibernate.initialize(transaction.smsPackage);
+
         return transaction;
     }
 
