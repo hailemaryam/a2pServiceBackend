@@ -11,4 +11,7 @@ public class RegistrationRequest {
     private String password;
     private String firstName;
     private String lastName;
+    private boolean isCompany;
+    private String tinNumber;
+    private String description;
 }

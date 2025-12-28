@@ -41,6 +41,9 @@ public class RegistrationResource {
         tenant.email = request.getEmail();
         tenant.phone = request.getPhone();
         tenant.status = Tenant.TenantStatus.ACTIVE;
+        tenant.isCompany = request.isCompany();
+        tenant.tinNumber = request.getTinNumber();
+        tenant.description = request.getDescription();
         tenant.persist();
 
         // 2. Create Keycloak User
@@ -76,6 +79,9 @@ public class RegistrationResource {
         // tenant.email = jwt.getClaim("email");
         tenant.phone = request.getPhone();
         tenant.status = Tenant.TenantStatus.ACTIVE;
+        tenant.isCompany = request.isCompany();
+        tenant.tinNumber = request.getTinNumber();
+        tenant.description = request.getDescription();
         tenant.persist();
 
         // 2. Assign Tenant to User in Keycloak

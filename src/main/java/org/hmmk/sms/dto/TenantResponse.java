@@ -14,6 +14,9 @@ public class TenantResponse {
     private Tenant.TenantStatus status;
     private long smsCredit;
     private int smsApprovalThreshold;
+    private boolean isCompany;
+    private String tinNumber;
+    private String description;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -26,6 +29,9 @@ public class TenantResponse {
         response.setStatus(tenant.status);
         response.setSmsCredit(tenant.smsCredit);
         response.setSmsApprovalThreshold(tenant.smsApprovalThreshold);
+        response.setCompany(tenant.isCompany);
+        response.setTinNumber(tenant.tinNumber);
+        response.setDescription(tenant.description);
         response.setCreatedAt(tenant.createdAt);
         response.setUpdatedAt(tenant.updatedAt);
         return response;

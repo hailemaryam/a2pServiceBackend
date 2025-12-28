@@ -32,6 +32,15 @@ public class Tenant extends PanacheEntityBase {
     @Column(nullable = false)
     public TenantStatus status;
 
+    @Column(name = "is_company", nullable = false)
+    public boolean isCompany;
+
+    @Column(name = "tin_number", length = 30)
+    public String tinNumber;
+
+    @Column(length = 1000)
+    public String description;
+
     @Column(name = "sms_credit", nullable = false)
     public long smsCredit;// total SMS available
 

@@ -9,4 +9,10 @@ public class TenantCreateRequest {
     private String name;
 
     private String phone;
+
+    private boolean isCompany;
+
+    private String tinNumber;
+
+    private String description;
 }
