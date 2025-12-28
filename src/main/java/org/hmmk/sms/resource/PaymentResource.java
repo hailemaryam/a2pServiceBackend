@@ -87,6 +87,7 @@ public class PaymentResource {
     @GET
     @Path("/transactions/{id}")
     @RolesAllowed({ "tenant_admin", "tenant_user" })
+    @Transactional
     public PaymentTransaction getTransactionById(@PathParam("id") String id) {
         String tenantId = jwt.getClaim("tenantId");
         if (tenantId == null) {
