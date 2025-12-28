@@ -413,4 +413,36 @@ public class SmsJobService {
         }
         return job;
     }
+
+    /**
+     * Cancels an SMS job that is pending approval or scheduled.
+     * Refunds credits if the job was already approved/scheduled.
+     */
+    @Transactional
+    public SmsJob cancelJob(UUID jobId, String tenantId) {
+        SmsJob job = SmsJob.find("id = ?1 and tenantId = ?2", jobId, tenantId).firstResult();
+        if (job == null) {
+            throw new NotFoundException("SMS job not found");
+        }
+
+        if (job.status != SmsJob.JobStatus.PENDING_APPROVAL && job.status != SmsJob.JobStatus.SCHEDULED) {
+            throw new BadRequestException("Only jobs in PENDING_APPROVAL or SCHEDULED status can be canceled");
+        }
+
+        // Refund credits if it was already scheduled (credits were deducted)
+        if (job.status == SmsJob.JobStatus.SCHEDULED && job.approvalStatus == SmsJob.ApprovalStatus.APPROVED) {
+            Tenant tenant = getTenant(tenantId);
+            tenant.smsCredit += job.totalSmsCount;
+            tenant.persist();
+        }
+
+        job.status = SmsJob.JobStatus.CANCELED;
+        job.persist();
+
+        // Update all recipients to CANCELED if they are still PENDING
+        SmsRecipient.update("status = ?1 where job.id = ?2 and status = ?3",
+                SmsRecipient.RecipientStatus.CANCELED, jobId, SmsRecipient.RecipientStatus.PENDING);
+
+        return job;
+    }
 }

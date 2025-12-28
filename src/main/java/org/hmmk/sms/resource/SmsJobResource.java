@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * REST resource for SMS sending operations.
@@ -153,6 +154,7 @@ public class SmsJobResource {
             throw new BadRequestException("Failed to read CSV file: " + e.getMessage());
         }
     }
+
     /**
      * list all SMS jobs for the current tenant with pagination.
      */
@@ -168,6 +170,7 @@ public class SmsJobResource {
         long total = SmsJob.count("tenantId", tenantId);
         return new org.hmmk.sms.dto.common.PaginatedResponse<>(items, total, page, size);
     }
+
     /**
      * Get pending SMS jobs that require approval.
      */
@@ -177,12 +180,27 @@ public class SmsJobResource {
     @Operation(summary = "Get pending SMS jobs for approval", description = "Retrieve SMS jobs that are pending approval")
     public org.hmmk.sms.dto.common.PaginatedResponse<SmsJob> getPendingApprovals(
             @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size
-    ) {
+            @QueryParam("size") @DefaultValue("20") int size) {
         String tenantId = tenantIdFromJwt();
         var query = SmsJob.find("tenantId = ?1 and approvalStatus = ?2", tenantId, SmsJob.ApprovalStatus.PENDING);
         List<SmsJob> items = query.list();
         long total = items.size();
         return new org.hmmk.sms.dto.common.PaginatedResponse<>(items, total, page, size);
+    }
+
+    /**
+     * Cancel an SMS job.
+     */
+    @POST
+    @Path("/{id}/cancel")
+    @RolesAllowed("tenant_admin")
+    @Operation(summary = "Cancel SMS job", description = "Cancel an SMS job that is pending approval or scheduled")
+    @APIResponse(responseCode = "200", description = "SMS job canceled successfully", content = @Content(schema = @Schema(implementation = SmsJobResponse.class)))
+    @APIResponse(responseCode = "400", description = "Job cannot be canceled")
+    @APIResponse(responseCode = "404", description = "SMS job not found")
+    public SmsJobResponse cancel(@PathParam("id") UUID id) {
+        String tenantId = tenantIdFromJwt();
+        SmsJob job = smsJobService.cancelJob(id, tenantId);
+        return SmsJobResponse.fromEntity(job, "SMS job canceled successfully");
     }
 }

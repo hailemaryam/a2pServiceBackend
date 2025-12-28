@@ -63,7 +63,7 @@ public class SmsJob extends TenantScopedEntity {
     }
 
     public enum JobStatus {
-        PENDING_APPROVAL, SCHEDULED, SENDING, COMPLETED, FAILED
+        PENDING_APPROVAL, SCHEDULED, SENDING, COMPLETED, FAILED, CANCELED
     }
 
     public enum MessageType {

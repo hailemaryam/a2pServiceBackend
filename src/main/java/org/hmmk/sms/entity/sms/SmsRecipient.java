@@ -41,6 +41,6 @@ public class SmsRecipient extends TenantScopedEntity {
     public Instant sentAt;
 
     public enum RecipientStatus {
-        PENDING, SENT, FAILED
+        PENDING, SENT, FAILED, CANCELED
     }
 }
