@@ -107,7 +107,6 @@ public class ContactResource {
         Contact c = Contact.find(query, id, tenantId).firstResult();
         if (c == null)
             throw new NotFoundException();
-        ContactGroupMember.delete("contactId", id);
         c.delete();
     }
 

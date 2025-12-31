@@ -6,9 +6,12 @@ import org.hmmk.sms.entity.TenantScopedEntity;
 
 @Entity
 @Table(name = "contact_group_members")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-public class ContactGroupMember  extends TenantScopedEntity {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ContactGroupMember extends TenantScopedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

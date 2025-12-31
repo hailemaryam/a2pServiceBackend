@@ -93,7 +93,6 @@ public class ContactGroupResource {
         ContactGroup g = ContactGroup.find("id = ?1 and tenantId = ?2", id, tenantId).firstResult();
         if (g == null)
             throw new NotFoundException();
-        ContactGroupMember.delete("groupId", id);
         g.delete();
     }
 }
