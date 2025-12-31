@@ -26,7 +26,8 @@ public class ContactGroupResource {
     JsonWebToken jwt;
 
     private String tenantIdFromJwt() {
-        if (jwt == null) return null;
+        if (jwt == null)
+            return null;
         Object claim = jwt.getClaim("tenantId");
         return claim == null ? null : claim.toString();
     }
@@ -50,7 +51,8 @@ public class ContactGroupResource {
         if (g.tenantId == null || !g.tenantId.equals(tenantId)) {
             throw new NotFoundException();
         }
-        if (g == null) throw new NotFoundException();
+        if (g == null)
+            throw new NotFoundException();
         g.name = payload.name;
         g.description = payload.description;
         g.persist();
@@ -59,7 +61,8 @@ public class ContactGroupResource {
 
     @GET
     @RolesAllowed("tenant_admin")
-    public PaginatedResponse<ContactGroup> list(@QueryParam("page") @DefaultValue("0") int page, @QueryParam("size") @DefaultValue("20") int size) {
+    public PaginatedResponse<ContactGroup> list(@QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
         String tenantId = tenantIdFromJwt();
         Page p = Page.of(page, size);
         var query = ContactGroup.find("tenantId", tenantId).page(p);
@@ -73,7 +76,8 @@ public class ContactGroupResource {
     @PermitAll
     public ContactGroup getById(@PathParam("id") String id) {
         ContactGroup g = ContactGroup.findById(id);
-        if (g == null) throw new NotFoundException();
+        if (g == null)
+            throw new NotFoundException();
         return g;
     }
 
@@ -86,10 +90,10 @@ public class ContactGroupResource {
     @Transactional
     public void delete(@PathParam("id") String id) {
         String tenantId = tenantIdFromJwt();
-        String query = "DELETE FROM ContactGroup WHERE id = ?1 AND tenantId = ?2";
         ContactGroup g = ContactGroup.find("id = ?1 and tenantId = ?2", id, tenantId).firstResult();
-        if (g == null) throw new NotFoundException();
-        ContactGroupMember.delete("groupId", id);
+        if (g == null)
+            throw new NotFoundException();
+        ContactGroupMember.delete("group_id", id);
         g.delete();
     }
 }
