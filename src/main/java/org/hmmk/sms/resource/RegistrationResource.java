@@ -82,6 +82,7 @@ public class RegistrationResource {
         tenant.isCompany = request.isCompany();
         tenant.tinNumber = request.getTinNumber();
         tenant.description = request.getDescription();
+        tenant.smsCredit = 300;
         tenant.persist();
 
         // 2. Assign Tenant to User in Keycloak
