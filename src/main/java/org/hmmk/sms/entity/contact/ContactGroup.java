@@ -24,7 +24,7 @@ public class ContactGroup extends TenantScopedEntity {
     public String name;
     public String description;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ContactGroupMember> members = new HashSet<>();
 

@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "contacts", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"tenantId", "phone"})
+        @UniqueConstraint(columnNames = { "tenantId", "phone" })
 })
 @Getter
 @Setter
@@ -25,7 +25,7 @@ public class Contact extends TenantScopedEntity {
     public String name;
     public String email;
 
-    @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "contact", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ContactGroupMember> groupMembers = new HashSet<>();
 }
